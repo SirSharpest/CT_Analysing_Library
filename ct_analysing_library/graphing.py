@@ -11,10 +11,9 @@ in the rest of the program
 """
 import pandas as pd
 import scipy.stats as stats
-from scipy.stats.mstats import normaltest
 import matplotlib.pyplot as plt
 import numpy as np
-from stats_test import qqplot
+from ct_analysing_library.statistical_tests import qqplot
 from scipy.stats import shapiro as normaltest
 
 plt.style.use('ggplot')
