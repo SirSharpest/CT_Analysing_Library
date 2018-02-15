@@ -9,6 +9,12 @@ class CTData():
     def __init__(self, folder, rachis):
         self.df = self.make_dataframe(folder, get_rachis=rachis)
 
+    def get_data(self):
+        """
+        Returns the dataframe used in this class
+        """
+        return self.df
+
     def gather_data(self, folder):
         """
         this function gathers together all
@@ -60,6 +66,16 @@ class CTData():
         # compare with the look-up table later
         df['folderid'] = df['folderid'].astype(int)
         return df
+
+    def fix_colnames(self):
+        """
+        Because Biologists like to give data which are not normalised to any degree
+        this function exists to attempt to correct the grouping columns,
+        after standarisation https://github.com/SirSharpest/CT_Analysing_Library/issues/2
+        this shouldn't be needed anymore, but kept for legacy issues that could arise! 
+        """
+        self.df['Sample name'] = self.df['Sample name'].map(
+            lambda x: str(x)[:-2])
 
     def join_spikes_by_rachis(self):
         """

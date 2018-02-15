@@ -47,3 +47,6 @@ flycheck_*.el
 # pycompile stuff
 *.pyc
 *__pychache__/
+
+# Ignore my scratch file
+*scratch.py
