@@ -2,12 +2,17 @@ from os.path import basename, dirname
 from glob import glob
 import pandas as pd
 import numpy as np
+import graphing as gp
 
 
 class CTData():
 
     def __init__(self, folder, rachis):
-        self.df = self.make_dataframe(folder, get_rachis=rachis)
+        try:
+            self.df = self.make_dataframe(folder, get_rachis=rachis)
+            self.clean_data()
+        except ValueError:
+            return('No data found, check input directory')
 
     def get_data(self):
         """
@@ -67,12 +72,21 @@ class CTData():
         df['folderid'] = df['folderid'].astype(int)
         return df
 
+    def clean_data(self):
+        """
+        Following parameters outlined in the 
+        CT software documentation I remove outliers 
+        which are known to be errors 
+        """
+        self.df = self.df[self.df['volume'] > 30]
+        self.df = self.df[self.df['volume'] < 60]
+
     def fix_colnames(self):
         """
         Because Biologists like to give data which are not normalised to any degree
         this function exists to attempt to correct the grouping columns,
-        after standarisation https://github.com/SirSharpest/CT_Analysing_Library/issues/2
-        this shouldn't be needed anymore, but kept for legacy issues that could arise! 
+        after standardisation https://github.com/SirSharpest/CT_Analysing_Library/issues/2
+        this shouldn't be needed anymore, but kept for legacy issues that could arise!
         """
         self.df['Sample name'] = self.df['Sample name'].map(
             lambda x: str(x)[:-2])
@@ -137,3 +151,10 @@ class CTData():
         def gather_data(x): return pd.Series([look_up(x, y) for y in features])
 
         self.df[features] = self.df.apply(gather_data, axis=1)
+
+    def make_plot(self, plot_type, x_var='Sample name', hue='', one_legend=False):
+        if plot_type == 'box':
+            gp.plot_boxplots(
+                self.df, self.df.columns[:8], x_var=x_var, hue=hue, one_legend=one_legend)
+        else:
+            print('Sorry that current function isn\'t supported yet!')
