@@ -9,8 +9,6 @@ Created on Mon Feb  5 21:48:07 2018
 This file is for graphing functions that don't yet have a place
 in the rest of the program
 
-
-TODO: Become flexible in attribute plotting
 """
 import pandas as pd
 import scipy.stats as stats
@@ -19,8 +17,17 @@ import numpy as np
 import seaborn as sns
 from ct_analysing_library.statistical_tests import qqplot
 from scipy.stats import shapiro as normaltest
+plt.style.use('ggplot')  # this is default, make changeable in future
 
-plt.style.use('ggplot')
+
+class Error(Exception):
+    """Base class for other exceptions"""
+    pass
+
+
+class InvalidPlot(Error):
+    """Except to trigger when a graph is given wrong args"""
+    pass
 
 
 def percentile_grid(dataframe, attributes):
@@ -80,22 +87,25 @@ def qq_grid(dataframe, attributes):
 
 
 def plot_boxplots(df, attributes, x_var='Sample name', hue='', one_legend=False):
-    hue = check_var_args('hue=\'{0}\''.format(hue))
-    x_var = check_var_args('x=\'{0}\''.format(x_var))
-    fig, axes = plt.subplots(2, 4, sharex=True)
-    for idx, att in enumerate(attributes):
-        x = idx // 4
-        y = idx % 4
-        func_template = 'sns.boxplot(data=df, y=att, ax=axes[x,y] {0}{1})'
-        print(func_template.format(x_var, hue))
-        eval(func_template.format(x_var, hue))
+    try:
+        hue = check_var_args('hue=\'{0}\''.format(hue))
+        x_var = check_var_args('x=\'{0}\''.format(x_var))
+        fig, axes = plt.subplots(2, 4, sharex=True)
+        for idx, att in enumerate(attributes):
+            x = idx // 4
+            y = idx % 4
+            func_template = 'sns.boxplot(data=df, y=att, ax=axes[x,y] {0}{1})'
+            print(func_template.format(x_var, hue))
+            eval(func_template.format(x_var, hue))
 
-        if one_legend:
-            axes[x, y].legend().set_visible(False)
-            if x == 0 and y == 3:
-                axes[x, y].legend().set_visible(True)
+            if one_legend:
+                axes[x, y].legend().set_visible(False)
+                if x == 0 and y == 3:
+                    axes[x, y].legend().set_visible(True)
 
-    return (fig, axes)
+        return (fig, axes)
+    except:
+        raise InvalidPlot
 
 
 def check_var_args(arg):

@@ -153,8 +153,15 @@ class CTData():
         self.df[features] = self.df.apply(gather_data, axis=1)
 
     def make_plot(self, plot_type, x_var='Sample name', hue='', one_legend=False):
+        """
+        Returns false if plot could not be created for invalid parameters
+        """
         if plot_type == 'box':
-            gp.plot_boxplots(
-                self.df, self.df.columns[:8], x_var=x_var, hue=hue, one_legend=one_legend)
+            try:
+                gp.plot_boxplots(self.df, self.df.columns[:8],
+                                 x_var=x_var, hue=hue, one_legend=one_legend)
+            except gp.InvalidPlot:
+                print('invalid plot')
+                return None
         else:
             print('Sorry that current function isn\'t supported yet!')
