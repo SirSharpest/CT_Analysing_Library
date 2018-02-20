@@ -1,18 +1,21 @@
+import sys
 from os.path import basename, dirname
 from glob import glob
 import pandas as pd
 import numpy as np
-import graphing as gp
+import ct_analysing_library.graphing as gp
 
 
 class CTData():
 
     def __init__(self, folder, rachis):
         try:
-            self.df = self.make_dataframe(folder, get_rachis=rachis)
+            self.make_dataframe(folder, get_rachis=rachis)
             self.clean_data()
+            self.df = self.df.reset_index(drop=True)
         except ValueError:
-            return('No data found, check input directory')
+            sys.stderr.write('No data found, check input directory')
+            return None
 
     def get_data(self):
         """
@@ -48,12 +51,12 @@ class CTData():
         @param rachis_files is an optional output from gather_data also
         @returns a dataframe of the information pre-joining
         """
-        grain_files, rachis_files = self.gather_data(folder)
+        self.grain_files, self.rachis_files = self.gather_data(folder)
         # load the files as dfs
-        dfs = {f: pd.read_csv(f) for f in grain_files}
+        dfs = {f: pd.read_csv(f) for f in self.grain_files}
         # load the files for rachis too
         if get_rachis:
-            rachis = {f: pd.read_csv(f) for f in rachis_files}
+            rachis = {f: pd.read_csv(f) for f in self.rachis_files}
             # add plant name to files
             # and rachis if applicable
         for k, v in dfs.items():
@@ -67,19 +70,25 @@ class CTData():
                 # Flip the scans so that the Z makes sense
         df = pd.concat(dfs.values())
         df['z'] = abs(df['z'] - df['z'].max())
-        # Finally just turn the folder number into an int so that it's easier to
-        # compare with the look-up table later
+        # Finally just turn the folder number into an int so that it's
+        # easier to compare with the look-up table later
         df['folderid'] = df['folderid'].astype(int)
-        return df
+        self.df = df
 
     def clean_data(self):
         """
-        Following parameters outlined in the 
-        CT software documentation I remove outliers 
-        which are known to be errors 
+        Following parameters outlined in the
+        CT software documentation I remove outliers
+        which are known to be errors
         """
         self.df = self.df[self.df['volume'] > 30]
         self.df = self.df[self.df['volume'] < 60]
+
+    def get_files(self):
+        """
+        Returns a tuple of grain files and rachis files
+        """
+        return self.grain_files, self.rachis_files
 
     def fix_colnames(self):
         """
