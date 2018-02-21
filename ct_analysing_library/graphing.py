@@ -108,6 +108,17 @@ def plot_boxplots(df, attributes, x_var='Sample name', hue='', one_legend=False)
         raise InvalidPlot
 
 
+def plot_histogram(df, attribute):
+    """
+    Simple histogram function
+
+    returns a plot axes 
+    """
+    ax = plt.subplot(111)
+    sns.distplot(df[attribute], ax=ax)
+    return ax
+
+
 def check_var_args(arg):
     """
     Helper function to fix bad arguments
