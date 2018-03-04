@@ -86,6 +86,19 @@ def qq_grid(dataframe, attributes):
     return (fig, axes)
 
 
+def plot_boxplot(df, attribute, x_var='Sample name', hue='None'):
+    """
+    This should just create a single boxplot and return the figure
+    and an axis, useful for rapid generation of single plots
+    Rather than the madness of the plural function
+    """
+    fig, ax = plt.subplots(1)
+    print(attribute)
+    sns.boxplot(data=df, x=attribute, y=x_var, ax=ax)
+    fig.tight_layout()
+    return (fig, ax)
+
+
 def plot_boxplots(df, attributes, x_var='Sample name', hue='', one_legend=False):
     try:
         hue = check_var_args('hue=\'{0}\''.format(hue))

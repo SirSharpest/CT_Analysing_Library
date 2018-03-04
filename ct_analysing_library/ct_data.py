@@ -72,6 +72,7 @@ class CTData():
                 # Flip the scans so that the Z makes sense
                 except IndexError:
                     sys.stderr.write('No data found for rachis\n, {0}\n'.format(k))
+                    print('Help')
         df = pd.concat(dfs.values())
         df['z'] = abs(df['z'] - df['z'].max())
         # Finally just turn the folder number into an int so that it's
@@ -102,7 +103,7 @@ class CTData():
         this shouldn't be needed anymore, but kept for legacy issues that could arise!
         """
         self.df['Sample Type'] = self.df['Sample name'].map(
-            lambda x: str(x).rsplit('_', 1)[0])
+            lambda x: ''.join([i for i in str(x) if not i.isdigit()]))
 
     def join_spikes_by_rachis(self):
         """
@@ -179,11 +180,17 @@ class CTData():
 
         @param attributes list of features to average
         """
+
+        if self.additional_data is None:
+            print('Warning, this could go wrong if additional data is not added')
+
         trans_funcs = {'median': np.median, 'mean': np.mean, 'std': np.std, 'sum': np.sum}
 
         for att in attributes:
             for col, func in trans_funcs.items():
                 self.df['{0}_{1}'.format(col, att)] = self.df.groupby(groupby)[att].transform(func)
+
+        self.df['grain_count'] = self.df.groupby(groupby)[groupby].transform(len)
 
     def make_plot(self, plot_type, x_var='Sample name', hue='', one_legend=False):
         """
