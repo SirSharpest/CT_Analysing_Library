@@ -16,6 +16,7 @@ class CTData():
         except ValueError:
             sys.stderr.write('No data found, check input directory')
             return None
+        self.additional_data = None
 
     def get_data(self):
         """
@@ -97,8 +98,8 @@ class CTData():
         after standardisation https://github.com/SirSharpest/CT_Analysing_Library/issues/2
         this shouldn't be needed anymore, but kept for legacy issues that could arise!
         """
-        self.df['Sample name'] = self.df['Sample name'].map(
-            lambda x: str(x)[:-2])
+        self.df['Sample Type'] = self.df['Sample name'].map(
+            lambda x: str(x).rsplit('_', 1)[0])
 
     def join_spikes_by_rachis(self):
         """
@@ -145,24 +146,41 @@ class CTData():
         end-user software, a toggle should be added to allow this
         """
 
-        # Grab the linking excel file
-        info = pd.read_excel(excel_file,
-                             index_col='Folder#')
+        try:
+            # Grab the linking excel file
+            info = pd.read_excel(excel_file,
+                                 index_col='Folder#')
 
-        # These are the features to grab
-        features = ['Hulled/Naked', 'Common name', 'Genome', 'Ploidy',
-                    'Wild/Domesticated', 'Sample name', 'Sub type', 'Ear']
+            # These are the features to grab
+            features = ['Hulled/Naked', 'Common name', 'Genome', 'Ploidy',
+                        'Wild/Domesticated', 'Sample name', 'Sub type', 'Ear']
 
-        # Lambda to look up the feature in excel spreadsheet
-        def look_up(x, y): return info.loc[x['folderid']][y]
+            # Lambda to look up the feature in excel spreadsheet
+            def look_up(x, y): return info.loc[x['folderid']][y]
 
-        # Lambda form a series (data row) and apply it to dataframe
-        def gather_data(x): return pd.Series([look_up(x, y) for y in features])
+            # Lambda form a series (data row) and apply it to dataframe
+            def gather_data(x): return pd.Series([look_up(x, y) for y in features])
 
-        self.df[features] = self.df.apply(gather_data, axis=1)
+            self.df[features] = self.df.apply(gather_data, axis=1)
+        except KeyError:
+            print('Error matching data')
+            return 0
 
-    def aggregate_spike_averages(self, attributes):
-        pass
+    def aggregate_spike_averages(self, attributes, groupby):
+        """
+        This will aggregate features (specified by attributes) into their medians
+        on a per-spike basis.
+
+
+        Makes direct changes to the dataframe (self.df)
+
+        @param attributes list of features to average
+        """
+        trans_funcs = {'median': np.median, 'mean': np.mean, 'std': np.std, 'sum': np.sum}
+
+        for att in attributes:
+            for col, func in trans_funcs.items():
+                self.df['{0}_{1}'.format(col, att)] = self.df.groupby(groupby)[att].transform(func)
 
     def make_plot(self, plot_type, x_var='Sample name', hue='', one_legend=False):
         """
