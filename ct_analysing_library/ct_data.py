@@ -161,6 +161,9 @@ class CTData():
 
         self.df[features] = self.df.apply(gather_data, axis=1)
 
+    def aggregate_spike_averages(self, attributes):
+        pass
+
     def make_plot(self, plot_type, x_var='Sample name', hue='', one_legend=False):
         """
         Returns false if plot could not be created for invalid parameters

@@ -108,14 +108,14 @@ def plot_boxplots(df, attributes, x_var='Sample name', hue='', one_legend=False)
         raise InvalidPlot
 
 
-def plot_histogram(df, attribute):
+def plot_histogram(df, attribute, norm_hist=True, kde=False):
     """
     Simple histogram function
 
     returns a plot axes 
     """
     ax = plt.subplot(111)
-    sns.distplot(df[attribute], ax=ax)
+    sns.distplot(df[attribute], ax=ax, norm_hist=norm_hist, kde=kde)
     return ax
 
 
