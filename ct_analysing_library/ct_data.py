@@ -14,7 +14,7 @@ class CTData():
             self.clean_data()
             self.df = self.df.reset_index(drop=True)
         except ValueError:
-            sys.stderr.write('No data found, check input directory')
+            sys.stderr.write('No data found, check input directory\n')
             return None
         self.additional_data = None
 
@@ -65,10 +65,13 @@ class CTData():
             v['scanid'] = basename(k).split('.', 1)[0]
             v['folderid'] = dirname(k).rsplit('/', 1)[-1]
             if get_rachis:
-                # reverse the rachis here so we don't have to later
-                v['rbot'] = rachis['{0}-rachis.csv'.format(k[:-4])]['rtop'][0]
-                v['rtop'] = rachis['{0}-rachis.csv'.format(k[:-4])]['rbot'][0]
+                try:
+                    # reverse the rachis here so we don't have to later
+                    v['rbot'] = rachis['{0}-rachis.csv'.format(k[:-4])]['rtop'][0]
+                    v['rtop'] = rachis['{0}-rachis.csv'.format(k[:-4])]['rbot'][0]
                 # Flip the scans so that the Z makes sense
+                except IndexError:
+                    sys.stderr.write('No data found for rachis\n, {0}\n'.format(k))
         df = pd.concat(dfs.values())
         df['z'] = abs(df['z'] - df['z'].max())
         # Finally just turn the folder number into an int so that it's
