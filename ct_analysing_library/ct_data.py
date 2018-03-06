@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+
+@author: Nathan
+
+"""
+
 import sys
 from os.path import basename, dirname
 from glob import glob
@@ -62,7 +70,7 @@ class CTData():
                 rachis = {f: pd.read_csv(f) for f in self.rachis_files}
             except EmptyDataError:
                 print('\nErrors with Rachis data,\nSkipping for now...\n')
-                get_rachis=False
+                get_rachis = False
             # add plant name to files
             # and rachis if applicable
         for k, v in dfs.items():
@@ -74,9 +82,9 @@ class CTData():
                     # reverse the rachis here so we don't have to later
                     v['rbot'] = rachis['{0}-rachis.csv'.format(k[:-4])]['rtop'][0]
                     v['rtop'] = rachis['{0}-rachis.csv'.format(k[:-4])]['rbot'][0]
-                    
+
                     # Check if rachis missing
-                    
+
                 # Flip the scans so that the Z makes sense
                 except IndexError:
                     sys.stderr.write('No data found for rachis\n, {0}\n'.format(k))
@@ -94,10 +102,9 @@ class CTData():
         CT software documentation I remove outliers
         which are known to be errors
         """
-        self.df=self.df.dropna(axis=1,how='all')
+        self.df = self.df.dropna(axis=1, how='all')
         self.df = self.df[self.df['volume'] > 30]
         self.df = self.df[self.df['volume'] < 60]
-        
 
     def get_files(self):
         """
