@@ -2,6 +2,7 @@ import sys
 from os.path import basename, dirname
 from glob import glob
 import pandas as pd
+from pandas.errors import EmptyDataError
 import numpy as np
 import ct_analysing_library.graphing as gp
 
@@ -57,7 +58,11 @@ class CTData():
         dfs = {f: pd.read_csv(f) for f in self.grain_files}
         # load the files for rachis too
         if get_rachis:
-            rachis = {f: pd.read_csv(f) for f in self.rachis_files}
+            try:
+                rachis = {f: pd.read_csv(f) for f in self.rachis_files}
+            except EmptyDataError:
+                print('\nErrors with Rachis data,\nSkipping for now...\n')
+                get_rachis=False
             # add plant name to files
             # and rachis if applicable
         for k, v in dfs.items():
@@ -69,6 +74,9 @@ class CTData():
                     # reverse the rachis here so we don't have to later
                     v['rbot'] = rachis['{0}-rachis.csv'.format(k[:-4])]['rtop'][0]
                     v['rtop'] = rachis['{0}-rachis.csv'.format(k[:-4])]['rbot'][0]
+                    
+                    # Check if rachis missing
+                    
                 # Flip the scans so that the Z makes sense
                 except IndexError:
                     sys.stderr.write('No data found for rachis\n, {0}\n'.format(k))
@@ -86,8 +94,10 @@ class CTData():
         CT software documentation I remove outliers
         which are known to be errors
         """
+        self.df=self.df.dropna(axis=1,how='all')
         self.df = self.df[self.df['volume'] > 30]
         self.df = self.df[self.df['volume'] < 60]
+        
 
     def get_files(self):
         """
@@ -181,7 +191,7 @@ class CTData():
         """
 
         if self.additional_data is None:
-            print('Warning, this could go wrong if additional data is not added')
+            print('\nWarning, this could go wrong if additional data is not added')
 
         trans_funcs = {'median': np.median, 'mean': np.mean, 'std': np.std, 'sum': np.sum}
 

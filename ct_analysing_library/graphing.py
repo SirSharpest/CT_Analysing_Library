@@ -15,7 +15,6 @@ import scipy.stats as stats
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from ct_analysing_library.statistical_tests import qqplot
 from scipy.stats import shapiro as normaltest
 plt.style.use('ggplot')  # this is default, make changeable in future
 
@@ -99,6 +98,21 @@ def plot_boxplot(df, attribute, x_var='Sample name', hue='None'):
     return (fig, ax)
 
 
+def qqplot(vals, plot=None):
+    """
+    What's a QQ plot? 
+    https://stats.stackexchange.com/questions/139708/qq-plot-in-python
+    """
+    z = (vals - np.mean(vals)) / np.std(vals)
+    if plot:
+        stats.probplot(z, dist="norm", plot=plot)
+        plt.title("Normal Q-Q plot")
+    else:
+        stats.probplot(z, dist="norm", plot=plt)
+        plt.title("Normal Q-Q plot")
+        plt.show()
+
+
 def plot_boxplots(df, attributes, x_var='Sample name', hue='', one_legend=False):
     try:
         hue = check_var_args('hue=\'{0}\''.format(hue))
@@ -141,3 +155,5 @@ def check_var_args(arg):
         return ''
     arg = ',{0}'.format(arg)
     return arg
+
+

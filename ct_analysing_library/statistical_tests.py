@@ -7,26 +7,9 @@ Created on Mon Feb  5 12:09:35 2018
 
 """
 
-import scipy.stats as stats
 from scipy.stats import shapiro as normaltest
 import matplotlib.pyplot as plt
 import numpy as np
-
-"""
-What's a QQ plot? 
-https://stats.stackexchange.com/questions/139708/qq-plot-in-python
-"""
-
-
-def qqplot(vals, plot=None):
-    z = (vals - np.mean(vals)) / np.std(vals)
-    if plot:
-        stats.probplot(z, dist="norm", plot=plot)
-        plt.title("Normal Q-Q plot")
-    else:
-        stats.probplot(z, dist="norm", plot=plt)
-        plt.title("Normal Q-Q plot")
-        plt.show()
 
 
 def test_normality(vals):
