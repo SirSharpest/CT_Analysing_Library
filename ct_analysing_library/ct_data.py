@@ -119,8 +119,7 @@ class CTData():
         # 'all' in partition, so let's id them to start with
         for sn in self.df[self.df['Ear'] != 'all']['Sample name'].unique():
 
-            bot = self.df.loc[(self.df['Sample name'] == sn)
-                              & (self.df['Ear'] == 'bot')]['rbot']
+            bot = self.df.loc[(self.df['Sample name'] == sn) & (self.df['Ear'] == 'bot')]['rbot']
 
             self.df.loc[(self.df['Sample name'] == sn) & (self.df['Ear'] == 'top'), 'z'] = self.df.loc[(
                 self.df['Sample name'] == sn) & (self.df['Ear'] == 'top'), 'z'] + bot
@@ -191,6 +190,20 @@ class CTData():
                 self.df['{0}_{1}'.format(col, att)] = self.df.groupby(groupby)[att].transform(func)
 
         self.df['grain_count'] = self.df.groupby(groupby)[groupby].transform(len)
+
+    def find_troublesome_spikes(self):
+        """
+        This will attempt to identify spikes
+        which are not performing as expected
+
+        The default criteria for this is simply a count check
+        So it requires that aggregate_spike_averages has been run
+
+        @returns a dataframe with candidates for manual investigation
+        """
+        df = self.df.filter(['Sample name', 'grain_count', 'folderid', 'scanid'], axis=1)
+        df = df.sort_values(by=['grain_count'])
+        return df
 
     def make_plot(self, plot_type, x_var='Sample name', hue='', one_legend=False):
         """
