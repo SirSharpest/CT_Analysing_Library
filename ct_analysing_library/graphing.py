@@ -10,7 +10,6 @@ This file is for graphing functions that don't yet have a place
 in the rest of the program
 
 """
-import pandas as pd
 import scipy.stats as stats
 import matplotlib.pyplot as plt
 import numpy as np
@@ -155,5 +154,3 @@ def check_var_args(arg):
         return ''
     arg = ',{0}'.format(arg)
     return arg
-
-

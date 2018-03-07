@@ -37,13 +37,13 @@ def standarise_data(df, features, groupby):
 def perform_pca(n_components, df, features, groupby, standardise=False):
 
 """
-This function will perform a PCA and return the principle components as a 
-dataframe. 
+This function will perform a PCA and return the principle components as a
+dataframe.
 
-@param n_components components to check form 
-@param df dataframe of the data to analyse 
+@param n_components components to check form
+@param df dataframe of the data to analyse
 @param features features from the dataframe to use
-@param  groupby the column in the df to use 
+@param  groupby the column in the df to use
 @param  standardise=False asks whether to standardise the data prior to PCA
 
 """

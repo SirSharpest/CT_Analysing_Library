@@ -8,8 +8,6 @@ Created on Mon Feb  5 12:09:35 2018
 """
 
 from scipy.stats import shapiro as normaltest
-import matplotlib.pyplot as plt
-import numpy as np
 
 
 def test_normality(vals):
@@ -19,10 +17,10 @@ def test_normality(vals):
     Null Hypothesis is that X came from a normal distribution
 
     which means:
-    If the p-val is very small, it means it is 
+    If the p-val is very small, it means it is
     unlikely that the data came from a normal distribution
 
-    As for chi-square: 
+    As for chi-square:
     https://biology.stackexchange.com/questions/13486/deciding-between-chi-square-and-t-test
     """
     w, p = normaltest(vals)

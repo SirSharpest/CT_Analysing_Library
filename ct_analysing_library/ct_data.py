@@ -6,6 +6,7 @@
 
 """
 
+
 import sys
 from os.path import basename, dirname
 from glob import glob
@@ -66,11 +67,12 @@ class CTData():
         dfs = {f: pd.read_csv(f) for f in self.grain_files}
         # load the files for rachis too
         if get_rachis:
-            try:
-                rachis = {f: pd.read_csv(f) for f in self.rachis_files}
-            except EmptyDataError:
-                print('\nErrors with Rachis data,\nSkipping for now...\n')
-                get_rachis = False
+            rachis = {}
+            for f in self.rachis_files:
+                try:
+                    rachis[f] = pd.read_csv(f)
+                except EmptyDataError:
+                    print('\{0} is missing rachis data...\n'.format(f))
             # add plant name to files
             # and rachis if applicable
         for k, v in dfs.items():
@@ -82,19 +84,22 @@ class CTData():
                     # reverse the rachis here so we don't have to later
                     v['rbot'] = rachis['{0}-rachis.csv'.format(k[:-4])]['rtop'][0]
                     v['rtop'] = rachis['{0}-rachis.csv'.format(k[:-4])]['rbot'][0]
-
-                    # Check if rachis missing
-
                 # Flip the scans so that the Z makes sense
-                except IndexError:
-                    sys.stderr.write('No data found for rachis\n, {0}\n'.format(k))
-                    print('Help')
+                except (IndexError, KeyError):
+                    print('No data found for rachis\n, {0}\nUsing seed Z as proxy'.format(k))
+                    try:
+                        v['rbot'] = v['z'].max()
+                        v['rtop'] = v['z'].min()
+                    except KeyError:
+                        print('\nFile: {0} looks to be empty...'.format(k))
+                        continue
         df = pd.concat(dfs.values())
         df['z'] = abs(df['z'] - df['z'].max())
         # Finally just turn the folder number into an int so that it's
         # easier to compare with the look-up table later
         df['folderid'] = df['folderid'].astype(int)
         self.df = df
+        return df  # returns a dataframe for use outside of object too!
 
     def clean_data(self):
         """
@@ -103,7 +108,8 @@ class CTData():
         which are known to be errors
         """
         self.df = self.df.dropna(axis=1, how='all')
-        self.df = self.df[self.df['volume'] > 30]
+        self.df = self.df[self.df['surface_area'] < 100]
+        self.df = self.df[self.df['volume'] > 3.50]  # this is given for brachy
         self.df = self.df[self.df['volume'] < 60]
 
     def get_files(self):
@@ -228,7 +234,9 @@ class CTData():
         """
         if plot_type == 'box':
             try:
-                gp.plot_boxplots(self.df, self.df.columns[:8],
+                columns = ['length', 'width', 'depth', 'ratio', 'circularity',
+                           'volume', 'crease_depth', 'surface_area']
+                gp.plot_boxplots(self.df, columns,
                                  x_var=x_var, hue=hue, one_legend=one_legend)
             except gp.InvalidPlot:
                 print('invalid plot')
