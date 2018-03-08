@@ -84,7 +84,7 @@ def qq_grid(dataframe, attributes):
     return (fig, axes)
 
 
-def plot_boxplot(df, attribute, x_var='Sample name', hue='None'):
+def plot_boxplot(data, attribute, x_var='Sample name', hue='None'):
     """
     This should just create a single boxplot and return the figure
     and an axis, useful for rapid generation of single plots
@@ -92,14 +92,14 @@ def plot_boxplot(df, attribute, x_var='Sample name', hue='None'):
     """
     fig, ax = plt.subplots(1)
     print(attribute)
-    sns.boxplot(data=df, x=attribute, y=x_var, ax=ax)
+    sns.boxplot(data=data.get_data(), x=attribute, y=x_var, ax=ax)
     fig.tight_layout()
     return (fig, ax)
 
 
 def qqplot(vals, plot=None):
     """
-    What's a QQ plot? 
+    What's a QQ plot?
     https://stats.stackexchange.com/questions/139708/qq-plot-in-python
     """
     z = (vals - np.mean(vals)) / np.std(vals)
@@ -112,36 +112,14 @@ def qqplot(vals, plot=None):
         plt.show()
 
 
-def plot_boxplots(df, attributes, x_var='Sample name', hue='', one_legend=False):
-    try:
-        hue = check_var_args('hue=\'{0}\''.format(hue))
-        x_var = check_var_args('x=\'{0}\''.format(x_var))
-        fig, axes = plt.subplots(2, 4, sharex=True)
-        for idx, att in enumerate(attributes):
-            x = idx // 4
-            y = idx % 4
-            func_template = 'sns.boxplot(data=df, y=att, ax=axes[x,y] {0}{1})'
-            print(func_template.format(x_var, hue))
-            eval(func_template.format(x_var, hue))
-
-            if one_legend:
-                axes[x, y].legend().set_visible(False)
-                if x == 0 and y == 3:
-                    axes[x, y].legend().set_visible(True)
-
-        return (fig, axes)
-    except:
-        raise InvalidPlot
-
-
-def plot_histogram(df, attribute, norm_hist=True, kde=False):
+def plot_histogram(data, attribute, **kwargs):
     """
-    Simple histogram function
-
-    returns a plot axes 
+    Simple histogram function which accepts
+    seaborn and matplotlib kwargs
+    returns a plot axes
     """
     ax = plt.subplot(111)
-    sns.distplot(df[attribute], ax=ax, norm_hist=norm_hist, kde=kde)
+    sns.distplot(data.get_data()[attribute], ax=ax, **kwargs)
     return ax
 
 

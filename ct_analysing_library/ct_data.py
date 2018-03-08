@@ -72,7 +72,7 @@ class CTData():
                 try:
                     rachis[f] = pd.read_csv(f)
                 except EmptyDataError:
-                    print('\{0} is missing rachis data...\n'.format(f))
+                    print('\n{0} is missing rachis data...'.format(f))
             # add plant name to files
             # and rachis if applicable
         for k, v in dfs.items():
@@ -86,7 +86,7 @@ class CTData():
                     v['rtop'] = rachis['{0}-rachis.csv'.format(k[:-4])]['rbot'][0]
                 # Flip the scans so that the Z makes sense
                 except (IndexError, KeyError):
-                    print('No data found for rachis\n, {0}\nUsing seed Z as proxy'.format(k))
+                    print('\nNo data found for rachis:\n{0}\nUsing seed Z as proxy'.format(k))
                     try:
                         v['rbot'] = v['z'].max()
                         v['rtop'] = v['z'].min()
@@ -228,18 +228,3 @@ class CTData():
         df = df.sort_values(by=['grain_count'])
         return df
 
-    def make_plot(self, plot_type, x_var='Sample name', hue='', one_legend=False):
-        """
-        Returns false if plot could not be created for invalid parameters
-        """
-        if plot_type == 'box':
-            try:
-                columns = ['length', 'width', 'depth', 'ratio', 'circularity',
-                           'volume', 'crease_depth', 'surface_area']
-                gp.plot_boxplots(self.df, columns,
-                                 x_var=x_var, hue=hue, one_legend=one_legend)
-            except gp.InvalidPlot:
-                print('invalid plot')
-                return None
-        else:
-            print('Sorry that current function isn\'t supported yet!')
