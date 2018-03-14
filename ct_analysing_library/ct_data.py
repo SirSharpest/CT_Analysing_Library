@@ -15,6 +15,10 @@ from pandas.errors import EmptyDataError
 import numpy as np
 
 
+class NoDataFoundException(Exception):
+    pass
+
+
 class CTData():
 
     def __init__(self, folder, rachis):
@@ -22,8 +26,7 @@ class CTData():
             self.make_dataframe(folder, get_rachis=rachis)
             self.clean_data()
             self.df = self.df.reset_index(drop=True)
-        except ValueError:
-            sys.stderr.write('No data found, check input directory\n')
+        except (ValueError, NoDataFoundException):
             return None
         self.additional_data = None
 
@@ -198,6 +201,8 @@ class CTData():
         except KeyError:
             print('Error matching data')
             return 0
+        except AttributeError:
+            raise NoDataFoundException
 
     def aggregate_spike_averages(self, attributes, groupby):
         """
