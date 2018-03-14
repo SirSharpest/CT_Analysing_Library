@@ -13,7 +13,6 @@ from glob import glob
 import pandas as pd
 from pandas.errors import EmptyDataError
 import numpy as np
-import ct_analysing_library.graphing as gp
 
 
 class CTData():
@@ -30,9 +29,9 @@ class CTData():
 
     def get_data(self):
         """
-        Returns the dataframe used in this class
+        Returns a copy of the dataframe used in this class
         """
-        return self.df
+        return self.df.copy(deep=True)
 
     def gather_data(self, folder):
         """
@@ -82,11 +81,14 @@ class CTData():
             if get_rachis:
                 try:
                     # reverse the rachis here so we don't have to later
-                    v['rbot'] = rachis['{0}-rachis.csv'.format(k[:-4])]['rtop'][0]
-                    v['rtop'] = rachis['{0}-rachis.csv'.format(k[:-4])]['rbot'][0]
+                    v['rbot'] = rachis['{0}-rachis.csv'.format(
+                        k[:-4])]['rtop'][0]
+                    v['rtop'] = rachis['{0}-rachis.csv'.format(
+                        k[:-4])]['rbot'][0]
                 # Flip the scans so that the Z makes sense
                 except (IndexError, KeyError):
-                    print('\nNo data found for rachis:\n{0}\nUsing seed Z as proxy'.format(k))
+                    print(
+                        '\nNo data found for rachis:\n{0}\nUsing seed Z as proxy'.format(k))
                     try:
                         v['rbot'] = v['z'].max()
                         v['rtop'] = v['z'].min()
@@ -142,7 +144,8 @@ class CTData():
         # 'all' in partition, so let's id them to start with
         for sn in self.df[self.df['Ear'] != 'all']['Sample name'].unique():
 
-            bot = self.df.loc[(self.df['Sample name'] == sn) & (self.df['Ear'] == 'bot')]['rbot']
+            bot = self.df.loc[(self.df['Sample name'] == sn)
+                              & (self.df['Ear'] == 'bot')]['rbot']
 
             self.df.loc[(self.df['Sample name'] == sn) & (self.df['Ear'] == 'top'), 'z'] = self.df.loc[(
                 self.df['Sample name'] == sn) & (self.df['Ear'] == 'top'), 'z'] + bot
@@ -185,7 +188,8 @@ class CTData():
             def look_up(x, y): return info.loc[x['folderid']][y]
 
             # Lambda form a series (data row) and apply it to dataframe
-            def gather_data(x): return pd.Series([look_up(x, y) for y in features])
+            def gather_data(x): return pd.Series(
+                [look_up(x, y) for y in features])
 
             self.df[features] = self.df.apply(gather_data, axis=1)
         except KeyError:
@@ -206,13 +210,16 @@ class CTData():
         if self.additional_data is None:
             print('\nWarning, this could go wrong if additional data is not added')
 
-        trans_funcs = {'median': np.median, 'mean': np.mean, 'std': np.std, 'sum': np.sum}
+        trans_funcs = {'median': np.median,
+                       'mean': np.mean, 'std': np.std, 'sum': np.sum}
 
         for att in attributes:
             for col, func in trans_funcs.items():
-                self.df['{0}_{1}'.format(col, att)] = self.df.groupby(groupby)[att].transform(func)
+                self.df['{0}_{1}'.format(col, att)] = self.df.groupby(groupby)[
+                    att].transform(func)
 
-        self.df['grain_count'] = self.df.groupby(groupby)[groupby].transform(len)
+        self.df['grain_count'] = self.df.groupby(
+            groupby)[groupby].transform(len)
 
     def find_troublesome_spikes(self):
         """
@@ -224,7 +231,7 @@ class CTData():
 
         @returns a dataframe with candidates for manual investigation
         """
-        df = self.df.filter(['Sample name', 'grain_count', 'folderid', 'scanid'], axis=1)
+        df = self.df.filter(['Sample name', 'grain_count',
+                             'folderid', 'scanid'], axis=1)
         df = df.sort_values(by=['grain_count'])
         return df
-

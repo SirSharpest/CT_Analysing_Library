@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Created on Mon Feb  5 21:48:07 2018
+reated on Mon Feb  5 21:48:07 2018
 
 @author: nathan
 
@@ -14,7 +14,6 @@ import scipy.stats as stats
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from scipy.stats import shapiro as normaltest
 plt.style.use('ggplot')  # this is default, make changeable in future
 
 
@@ -28,15 +27,17 @@ class InvalidPlot(Error):
     pass
 
 
-def plot_boxplot(data, attribute, x_var='Sample name', hue='None'):
+def plot_boxplot(data, attribute, **kwargs):
     """
     This should just create a single boxplot and return the figure
     and an axis, useful for rapid generation of single plots
     Rather than the madness of the plural function
+
+    Accepts Kwargs for matplotlib and seaborn
     """
     fig, ax = plt.subplots(1)
     print(attribute)
-    sns.boxplot(data=data.get_data(), x=attribute, y=x_var, ax=ax)
+    sns.boxplot(data=data.get_data(), x=attribute, **kwargs)
     fig.tight_layout()
     return (fig, ax)
 
