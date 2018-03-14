@@ -27,7 +27,7 @@ class CTData():
             self.clean_data()
             self.df = self.df.reset_index(drop=True)
         except (ValueError, NoDataFoundException):
-            return None
+            raise NoDataFoundException
         self.additional_data = None
 
     def get_data(self):
@@ -48,6 +48,9 @@ class CTData():
             folder = folder + '/'
         search_params = '{0}*/*.csv'
         candidate_files = glob(search_params.format(folder))
+        # Check data was found
+        if len(candidate_files) == 0:
+            raise NoDataFoundException
         # we aren't bothered about the raw files so lets remove them
         candidate_files = [f for f in candidate_files if 'raw' not in f]
         # now let's separate out the rachis
