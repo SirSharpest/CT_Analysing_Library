@@ -12,5 +12,6 @@ setup(name='CT_Analysing_Library',
                         'numpy',
                         'matplotlib',
                         'seaborn',
-                        'scipy'],
+                        'scipy',
+                        'sklearn'],
       zip_safe=True)

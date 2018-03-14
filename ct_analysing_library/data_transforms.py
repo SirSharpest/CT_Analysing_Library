@@ -12,6 +12,17 @@ import pandas as pd
 from numpy import log10
 
 
+def box_cox_data(df, features, groupby):
+    """
+    The powers or Box_Cox transform
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.boxcox.html
+
+    Appears to be something which could really help with the kind of skewed data which this
+    library seeks to assist with.
+    """
+    pass
+
+
 def standarise_data(df, features, groupby):
     """
     This is to conform with the likes of PCA, the following text is borrowed from:
