@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 import pandas as pd
-from numpy import log2
+from numpy import log10
 
 
 def standarise_data(df, features, groupby):
@@ -29,18 +29,12 @@ def standarise_data(df, features, groupby):
 
     To try and fit a normal distribution I am applying log scales of log_2
     """
-
     # Separating out the features
     x = df.loc[:, features].values
     # Attempt to normalise
-    x = log2(x)
-
-    # Separating out the target
-    # y = df.loc[:, [groupby]].values
-
+    x = log10(x)
     # Standardizing the features
     x = StandardScaler().fit_transform(x)
-
     return x
 
 
@@ -58,7 +52,7 @@ def perform_pca(n_components, df, features, groupby, standardise=False):
     """
     pca = PCA(n_components=2)
     principalComponents = pca.fit_transform(
-        standarise_data(df, features, groupby))
+        standarise_data(df, features, groupby) if standardise else df.loc[:, features].values)
     principalDf = pd.DataFrame(data=principalComponents, columns=[
                                'principal component 1', 'principal component 2'])
 
@@ -75,4 +69,5 @@ def perform_pca(n_components, df, features, groupby, standardise=False):
         ax.scatter(finalDf.loc[indicesToKeep, 'principal component 1'],
                    finalDf.loc[indicesToKeep, 'principal component 2'], s=50)
     ax.legend(targets)
-    ax.grid()
+    # ax.grid()
+    plt.show()

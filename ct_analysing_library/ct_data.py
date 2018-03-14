@@ -109,7 +109,10 @@ class CTData():
         CT software documentation I remove outliers
         which are known to be errors
         """
+
         self.df = self.df.dropna(axis=1, how='all')
+
+        # TODO Add flexible criteria
         self.df = self.df[self.df['surface_area'] < 100]
         self.df = self.df[self.df['volume'] > 3.50]  # this is given for brachy
         self.df = self.df[self.df['volume'] < 60]
