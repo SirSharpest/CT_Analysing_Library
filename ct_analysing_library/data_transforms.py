@@ -8,19 +8,21 @@
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+from scipy.stats import boxcox
 import pandas as pd
+import numpy as np
 from numpy import log10
 
 
-def box_cox_data(df, features, groupby):
+def box_cox_data(values_array):
     """
     The powers or Box_Cox transform
-    https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.boxcox.html
 
     Appears to be something which could really help with the kind of skewed data which this
     library seeks to assist with.
     """
-    pass
+    for c in values_array.T:
+        c = boxcox(c)
 
 
 def standarise_data(df, features, groupby):
@@ -42,8 +44,10 @@ def standarise_data(df, features, groupby):
     """
     # Separating out the features
     x = df.loc[:, features].values
-    # Attempt to normalise
-    x = log10(x)
+
+    # Attempt to normalise through power transforms
+    box_cox_data(x)
+
     # Standardizing the features
     x = StandardScaler().fit_transform(x)
     return x
@@ -53,6 +57,8 @@ def perform_pca(n_components, df, features, groupby, standardise=False):
     """
     This function will perform a PCA and return the principle components as a
     dataframe.
+
+    Read: https://stackoverflow.com/questions/22984335/recovering-features-names-of-explained-variance-ratio-in-pca-with-sklearn
 
     @param n_components components to check form
     @param df dataframe of the data to analyse
@@ -64,7 +70,8 @@ def perform_pca(n_components, df, features, groupby, standardise=False):
     pca = PCA(n_components=2)
     principalComponents = pca.fit_transform(
         standarise_data(df, features, groupby) if standardise else df.loc[:, features].values)
+
     principalDf = pd.DataFrame(data=principalComponents, columns=[
                                'principal component 1', 'principal component 2'])
 
-    return pd.concat([principalDf, df[[groupby]]], axis=1)
+    return (pd.concat([principalDf, df[[groupby]]], axis=1), pca)

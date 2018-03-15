@@ -69,6 +69,9 @@ def plot_histogram(data, attribute, **kwargs):
 
 
 def plot_pca(dataframe, groupby):
+    """
+    Plots the PCA of the data given in a 2D plot
+    """
     fig = plt.figure(figsize=(8, 8))
     ax = fig.add_subplot(1, 1, 1)
     ax.set_xlabel('Principal Component 1', fontsize=15)
