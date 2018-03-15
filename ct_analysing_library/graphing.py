@@ -68,6 +68,21 @@ def plot_histogram(data, attribute, **kwargs):
     return ax
 
 
+def plot_pca(dataframe, groupby):
+    fig = plt.figure(figsize=(8, 8))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlabel('Principal Component 1', fontsize=15)
+    ax.set_ylabel('Principal Component 2', fontsize=15)
+    ax.set_title('2 component PCA', fontsize=20)
+    targets = dataframe[groupby].unique()
+    for target in targets:
+        indicesToKeep = dataframe[groupby] == target
+        ax.scatter(dataframe.loc[indicesToKeep, 'principal component 1'],
+                   dataframe.loc[indicesToKeep, 'principal component 2'], s=50)
+    ax.legend(targets)
+    plt.show()
+
+
 def check_var_args(arg):
     """
     Helper function to fix bad arguments
