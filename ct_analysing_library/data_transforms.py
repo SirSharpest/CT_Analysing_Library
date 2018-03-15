@@ -81,7 +81,9 @@ def pca_to_table(pca, pca_df):
     """
     Creates a dataframe of the PCA weights for each
     attribute
+
+    https://stackoverflow.com/questions/22984335/recovering-features-names-of-explained-variance-ratio-in-pca-with-sklearn
     """
-    i = np.identify(pca_df.shape[1])
+    i = np.identity(pca_df.shape[1])
     coeff = pca.transform(i)
     return pd.DataFrame(coeff, columns=['PC-1', 'PC-2'], index=pca_df.columns)
