@@ -53,7 +53,7 @@ def standarise_data(df, features, groupby):
     return x
 
 
-def perform_pca(n_components, df, features, groupby, standardise=False):
+def perform_pca(df, features, groupby, standardise=False):
     """
     This function will perform a PCA and return the principle components as a
     dataframe.
