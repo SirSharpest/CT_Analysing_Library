@@ -75,3 +75,13 @@ def perform_pca(df, features, groupby, standardise=False):
                                'principal component 1', 'principal component 2'])
 
     return (pd.concat([principalDf, df[[groupby]]], axis=1), pca)
+
+
+def pca_to_table(pca, pca_df):
+    """
+    Creates a dataframe of the PCA weights for each
+    attribute
+    """
+    i = np.identify(pca_df.shape[1])
+    coeff = pca.transform(i)
+    return pd.DataFrame(coeff, columns=['PC-1', 'PC-2'], index=pca_df.columns)
