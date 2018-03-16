@@ -68,24 +68,24 @@ def plot_histogram(data, attribute, **kwargs):
     return ax
 
 
-def plot_pca(pca, dataframe, groupby):
+def plot_pca(pca, dataframe, groupby, single_plot=False):
     """
     Plots the PCA of the data given in a 2D plot
     """
-    fig = plt.figure(figsize=(8, 8))
-    ax = fig.add_subplot(1, 1, 1)
-    ax.set_xlabel(
+    if single_plot:
+        g = sns.lmplot(data=dataframe, x='principal component 1',
+                       y='principal component 2', hue=groupby, fit_reg=True, col=groupby, scatter_kws={'alpha': 0.6})
+    else:
+        g = sns.lmplot(data=dataframe, x='principal component 1',
+                       y='principal component 2', hue=groupby, fit_reg=True, scatter_kws={'alpha': 0.6})
+
+    g.set_xlabels(
         'Principal Component 1 - %{0:.2f}'.format(pca.explained_variance_ratio_[0] * 100), fontsize=15)
-    ax.set_ylabel(
+    g.set_ylabels(
         'Principal Component 2 - %{0:.2f}'.format(pca.explained_variance_ratio_[1] * 100), fontsize=15)
-    ax.set_title('2 component PCA total explained: %{0:.2f}'.format(
-        pca.explained_variance_ratio_.cumsum()[1] * 100), fontsize=20)
-    targets = dataframe[groupby].unique()
-    for target in targets:
-        indicesToKeep = dataframe[groupby] == target
-        ax.scatter(dataframe.loc[indicesToKeep, 'principal component 1'],
-                   dataframe.loc[indicesToKeep, 'principal component 2'], s=50)
-    ax.legend(targets)
+    g.fig.suptitle('2 component PCA total explained: %{0:.2f}'.format(
+        pca.explained_variance_ratio_.cumsum()[1] * 100))
+
     plt.show()
 
 

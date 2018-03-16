@@ -63,16 +63,20 @@ def perform_pca(df, features, groupby, standardise=False):
     @param n_components components to check form
     @param df dataframe of the data to analyse
     @param features features from the dataframe to use
-    @param  groupby the column in the df to use
-    @param  standardise=False asks whether to standardise the data prior to PCA
+    @param groupby the column in the df to use
+    @param standardise=False asks whether to standardise the data prior to PCA
 
     """
     pca = PCA(n_components=2)
-    principalComponents = pca.fit_transform(
-        standarise_data(df, features, groupby) if standardise else df.loc[:, features].values)
+    data = standarise_data(
+        df, features, groupby) if standardise else df.loc[:, features].values
+    principalComponents = pca.fit_transform(data)
 
     principalDf = pd.DataFrame(data=principalComponents, columns=[
                                'principal component 1', 'principal component 2'])
+
+    # Broken TODO: Fix
+    # pca_table = pca_to_table(pca, data)
 
     return (pd.concat([principalDf, df[[groupby]]], axis=1), pca)
 
