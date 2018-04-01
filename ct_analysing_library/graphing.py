@@ -14,6 +14,7 @@ import scipy.stats as stats
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+from pandas import DataFrame
 plt.style.use('ggplot')  # this is default, make changeable in future
 
 
@@ -37,7 +38,10 @@ def plot_boxplot(data, attribute, **kwargs):
     """
     fig, ax = plt.subplots(1)
     print(attribute)
-    sns.boxplot(data=data.get_data(), x=attribute, **kwargs)
+    if type(data) is not DataFrame:
+        sns.boxplot(data=data.get_data(), x=attribute, **kwargs)
+    else:
+        sns.boxplot(data=data, x=attribute, **kwargs)
     fig.tight_layout()
     return (fig, ax)
 
@@ -72,12 +76,12 @@ def plot_pca(pca, dataframe, groupby, single_plot=False):
     """
     Plots the PCA of the data given in a 2D plot
     """
-    if single_plot:
+    if not single_plot:
         g = sns.lmplot(data=dataframe, x='principal component 1',
-                       y='principal component 2', hue=groupby, fit_reg=True, col=groupby, scatter_kws={'alpha': 0.6})
+                       y='principal component 2', hue=groupby, fit_reg=False, col=groupby, scatter_kws={'alpha': 0.6}, size=7, aspect=1.5)
     else:
         g = sns.lmplot(data=dataframe, x='principal component 1',
-                       y='principal component 2', hue=groupby, fit_reg=True, scatter_kws={'alpha': 0.6})
+                       y='principal component 2', hue=groupby, fit_reg=False, scatter_kws={'alpha': 0.6}, size=7, aspect=1.5)
 
     g.set_xlabels(
         'Principal Component 1 - %{0:.2f}'.format(pca.explained_variance_ratio_[0] * 100), fontsize=15)
@@ -85,8 +89,7 @@ def plot_pca(pca, dataframe, groupby, single_plot=False):
         'Principal Component 2 - %{0:.2f}'.format(pca.explained_variance_ratio_[1] * 100), fontsize=15)
     g.fig.suptitle('2 component PCA total explained: %{0:.2f}'.format(
         pca.explained_variance_ratio_.cumsum()[1] * 100))
-
-    plt.show()
+    return g
 
 
 def check_var_args(arg):

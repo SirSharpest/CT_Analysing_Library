@@ -13,5 +13,7 @@ setup(name='CT_Analysing_Library',
                         'matplotlib',
                         'seaborn',
                         'scipy',
-                        'sklearn'],
+                        'sklearn',
+                        'statsmodels',
+                        'xlrd'],
       zip_safe=True)

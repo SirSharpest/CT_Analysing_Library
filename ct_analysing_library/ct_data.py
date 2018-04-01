@@ -5,8 +5,6 @@
 @author: Nathan
 
 """
-
-
 import sys
 from os.path import basename, dirname
 from glob import glob
@@ -25,6 +23,7 @@ class CTData():
         try:
             self.make_dataframe(folder, get_rachis=rachis)
             self.clean_data()
+            self.create_dimensions_ratio()
             self.df = self.df.reset_index(drop=True)
         except (ValueError, NoDataFoundException):
             raise NoDataFoundException
@@ -58,6 +57,10 @@ class CTData():
         # and just assume the rest is what we want
         candidate_files = [f for f in candidate_files if 'rachis' not in f]
         return (candidate_files, rachis)
+
+    def create_dimensions_ratio(self):
+        self.df['length_depth_width'] = self.df.apply(
+            lambda x: x['length'] * x['depth'] * x['width'], axis=1)
 
     def make_dataframe(self, folder, get_rachis=False):
         """
@@ -203,7 +206,7 @@ class CTData():
             self.df[features] = self.df.apply(gather_data, axis=1)
         except KeyError:
             print('Error matching data')
-            return 0
+            raise NoDataFoundException
         except AttributeError:
             raise NoDataFoundException
 
