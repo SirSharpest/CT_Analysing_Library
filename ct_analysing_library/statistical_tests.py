@@ -8,6 +8,78 @@ Created on Mon Feb  5 12:09:35 2018
 """
 
 from scipy.stats import shapiro as normaltest
+import numpy as np
+import pymc3 as pm
+import pandas as pd
+
+
+def baysian_hypothesis_test(group1, group2):
+    """
+    Implements and uses the hypothesis test outlined as a robust replacement
+    for the t-test
+
+    for reference http://www.indiana.edu/~kruschke/BEST/BEST.pdf
+
+    @returns a summary dataframe
+    """
+    if not isinstance(group1, np.ndarray) or not isinstance(group2, np.ndarray):
+        raise TypeError
+
+    y = pd.DataFrame(dict(value=np.r_[group1, group2], group=np.r_[
+                     ['group1']*len(group1), ['group2']*len(group2)]))
+
+    mu_m = y.value.mean()
+    mu_s = y.value.std()*2
+
+    # This model will assume the same distributions
+    # are shared across both groups, for simplicity
+
+    with pm.Model() as model:
+        group1_mean = pm.Normal('group1_mean', mu_m, sd=mu_s)
+        group2_mean = pm.Normal('group2_mean', mu_m, sd=mu_s)
+
+    sig_low = 1
+    sig_high = 10
+
+    with model:
+        group1_std = pm.Uniform('group1_std', lower=sig_low, upper=sig_high)
+        group2_std = pm.Uniform('group2_std', lower=sig_low, upper=sig_high)
+
+    with model:
+        nu = pm.Exponential('nu_minus_one', 1/29.) + 1
+
+    with model:
+        lambda_1 = group1_std**-2
+        lambda_2 = group2_std**-2
+
+        group1 = pm.StudentT('group1', nu=nu, mu=group1_mean,
+                             lam=lambda_1, observed=group1)
+        group2 = pm.StudentT('group2', nu=nu, mu=group2_mean,
+                             lam=lambda_2, observed=group2)
+
+    with model:
+        diff_of_means = pm.Deterministic(
+            'difference of means', group1_mean - group2_mean)
+        diff_of_stds = pm.Deterministic(
+            'difference of stds', group1_std - group2_std)
+        effect_size = pm.Deterministic('effect size',
+                                       diff_of_means / np.sqrt((group1_std**2 + group2_std**2) / 2))
+
+    with model:
+        trace = pm.sample(10, cores=2)
+
+    pm.plot_posterior(trace, varnames=[
+        'group1_mean', 'group2_mean', 'group1_std', 'group2_std', 'ν_minus_one'], color='#87ceeb')
+
+    pm.forestplot(trace, varnames=['group1_mean',
+                                   'group2_mean'])
+
+    pm.forestplot(trace, varnames=['group1_std',
+                                   'group2_std',
+                                   'ν_minus_one'])
+
+    return pm.summary(trace, varnames=['difference of means',
+                                       'difference of stds', 'effect size'])
 
 
 def test_normality(vals):

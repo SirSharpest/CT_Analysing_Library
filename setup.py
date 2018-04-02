@@ -15,5 +15,6 @@ setup(name='CT_Analysing_Library',
                         'scipy',
                         'sklearn',
                         'statsmodels',
+                        'pymc3',
                         'xlrd'],
       zip_safe=True)
