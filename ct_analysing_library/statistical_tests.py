@@ -66,7 +66,7 @@ def baysian_hypothesis_test(group1, group2):
                                        diff_of_means / np.sqrt((group1_std**2 + group2_std**2) / 2))
 
     with model:
-        trace = pm.sample(10, cores=2)
+        trace = pm.sample(2000, cores=2)
 
     pm.plot_posterior(trace, varnames=[
         'group1_mean', 'group2_mean', 'group1_std', 'group2_std', 'nu_minus_one'], color='#87ceeb')
