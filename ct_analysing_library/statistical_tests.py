@@ -69,14 +69,14 @@ def baysian_hypothesis_test(group1, group2):
         trace = pm.sample(10, cores=2)
 
     pm.plot_posterior(trace, varnames=[
-        'group1_mean', 'group2_mean', 'group1_std', 'group2_std', 'ν_minus_one'], color='#87ceeb')
+        'group1_mean', 'group2_mean', 'group1_std', 'group2_std', 'nu_minus_one'], color='#87ceeb')
 
     pm.forestplot(trace, varnames=['group1_mean',
                                    'group2_mean'])
 
     pm.forestplot(trace, varnames=['group1_std',
                                    'group2_std',
-                                   'ν_minus_one'])
+                                   'nu_minus_one'])
 
     return pm.summary(trace, varnames=['difference of means',
                                        'difference of stds', 'effect size'])
