@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from pandas import DataFrame
+import pymc3 as pm
 plt.style.use('ggplot')  # this is default, make changeable in future
 
 
@@ -26,6 +27,18 @@ class Error(Exception):
 class InvalidPlot(Error):
     """Except to trigger when a graph is given wrong args"""
     pass
+
+
+def plot_difference_of_means(trace):
+    ps1 = pm.plot_posterior(trace, varnames=['difference of means'],
+                            ref_val=0,
+                            color='#87ceeb')
+    return ps1
+
+
+def plot_forest_plot(trace, name1, name2):
+    fp1 = pm.forestplot(trace, varnames=[name1, name2], rhat=False)
+    return fp1
 
 
 def plot_boxplot(data, attribute, **kwargs):

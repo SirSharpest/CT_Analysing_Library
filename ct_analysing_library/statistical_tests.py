@@ -11,22 +11,26 @@ from scipy.stats import shapiro as normaltest
 import numpy as np
 import pymc3 as pm
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
-def baysian_hypothesis_test(group1, group2):
+def baysian_hypothesis_test(group1, group2, group1_name, group2_name):
     """
     Implements and uses the hypothesis test outlined as a robust replacement
     for the t-test
 
     for reference http://www.indiana.edu/~kruschke/BEST/BEST.pdf
 
-    @returns a summary dataframe and two gridspecs
+    @returns a summary dataframe
     """
     if not isinstance(group1, np.ndarray) or not isinstance(group2, np.ndarray):
         raise TypeError
 
+    group1 = np.log10(group1)
+    group2 = np.log10(group2)
+
     y = pd.DataFrame(dict(value=np.r_[group1, group2], group=np.r_[
-                     ['group1']*len(group1), ['group2']*len(group2)]))
+                     [group1_name]*len(group1), [group2_name]*len(group2)]))
 
     mu_m = y.value.mean()
     mu_s = y.value.std()*2
@@ -35,15 +39,17 @@ def baysian_hypothesis_test(group1, group2):
     # are shared across both groups, for simplicity
 
     with pm.Model() as model:
-        group1_mean = pm.Normal('group1_mean', mu_m, sd=mu_s)
-        group2_mean = pm.Normal('group2_mean', mu_m, sd=mu_s)
+        group1_mean = pm.Normal('{0}_mean'.format(group1_name), mu_m, sd=mu_s)
+        group2_mean = pm.Normal('{0}_mean'.format(group2_name), mu_m, sd=mu_s)
 
     sig_low = 1
-    sig_high = 10
+    sig_high = 1000
 
     with model:
-        group1_std = pm.Uniform('group1_std', lower=sig_low, upper=sig_high)
-        group2_std = pm.Uniform('group2_std', lower=sig_low, upper=sig_high)
+        group1_std = pm.Uniform('{0}_std'.format(
+            group1_name), lower=sig_low, upper=sig_high)
+        group2_std = pm.Uniform('{0}_std'.format(
+            group2_name), lower=sig_low, upper=sig_high)
 
     with model:
         nu = pm.Exponential('nu_minus_one', 1/29.) + 1
@@ -52,9 +58,9 @@ def baysian_hypothesis_test(group1, group2):
         lambda_1 = group1_std**-2
         lambda_2 = group2_std**-2
 
-        group1 = pm.StudentT('group1', nu=nu, mu=group1_mean,
+        group1 = pm.StudentT(group1_name, nu=nu, mu=group1_mean,
                              lam=lambda_1, observed=group1)
-        group2 = pm.StudentT('group2', nu=nu, mu=group2_mean,
+        group2 = pm.StudentT(group2_name, nu=nu, mu=group2_mean,
                              lam=lambda_2, observed=group2)
 
     with model:
@@ -68,18 +74,8 @@ def baysian_hypothesis_test(group1, group2):
     with model:
         trace = pm.sample(2000, cores=2)
 
-    pm.plot_posterior(trace, varnames=[
-        'group1_mean', 'group2_mean', 'group1_std', 'group2_std', 'nu_minus_one'], color='#87ceeb')
-
-    fp1 = pm.forestplot(trace, varnames=['group1_mean',
-                                         'group2_mean'])
-
-    fp2 = pm.forestplot(trace, varnames=['group1_std',
-                                         'group2_std',
-                                         'nu_minus_one'])
-
-    return pm.summary(trace, varnames=['difference of means',
-                                       'difference of stds', 'effect size']), fp1, fp2
+    return trace, pm.summary(trace, varnames=['difference of means',
+                                              'difference of stds', 'effect size'])
 
 
 def test_normality(vals):
