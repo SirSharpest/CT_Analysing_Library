@@ -53,7 +53,7 @@ def standarise_data(df, features, groupby):
     return x
 
 
-def perform_pca(df, features, groupby, groupby2=None, standardise=False):
+def perform_pca(df, features, groupby, groupby2=None, groupby3=None, standardise=False):
     """
     This function will perform a PCA and return the principle components as a
     dataframe.
@@ -80,7 +80,10 @@ def perform_pca(df, features, groupby, groupby2=None, standardise=False):
 
     if groupby2 is None:
         return (pd.concat([principalDf, df[[groupby]]], axis=1), pca)
-    return (pd.concat([principalDf, df[[groupby]], df[[groupby2]]], axis=1), pca)
+    if groupby3 is None:
+        return (pd.concat([principalDf, df[[groupby]], df[[groupby2]]], axis=1), pca)
+    else:
+        return (pd.concat([principalDf, df[[groupby]], df[[groupby2]], df[[groupby3]]], axis=1), pca)
 
 
 def pca_to_table(pca, pca_df):

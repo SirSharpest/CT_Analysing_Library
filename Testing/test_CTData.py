@@ -1,12 +1,11 @@
 import sys
 import pytest
 sys.path.append('ct_analysing_library/')
-
 from ct_analysing_library.ct_data import CTData, NoDataFoundException
 
 # Some globals that are needed for loading in the data
-DATA_FOLDER = 'Test_Data/'
-EXTRA_INFO = 'Test_Files/extra_information.xlsx'
+DATA_FOLDER = 'Testing/Test_Data/'
+EXTRA_INFO = 'Testing/Test_Files/extra_information.xlsx'
 
 
 @pytest.fixture

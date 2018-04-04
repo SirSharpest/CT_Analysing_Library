@@ -112,19 +112,23 @@ class CTData():
         self.df = df
         return df  # returns a dataframe for use outside of object too!
 
-    def clean_data(self):
+    def clean_data(self, remove_small=False, remove_large=False):
         """
         Following parameters outlined in the
         CT software documentation I remove outliers
         which are known to be errors
         """
-
         self.df = self.df.dropna(axis=1, how='all')
-
-        # TODO Add flexible criteria
         self.df = self.df[self.df['surface_area'] < 100]
         self.df = self.df[self.df['volume'] > 3.50]  # this is given for brachy
         self.df = self.df[self.df['volume'] < 60]
+
+        if remove_large:
+            self.df = self.df[self.df['volume'] <
+                              self.df['volume'].quantile(.95)]
+        if remove_small:
+            self.df = self.df[self.df['volume'] >
+                              self.df['volume'].quantile(.05)]
 
     def get_files(self):
         """
@@ -193,9 +197,6 @@ class CTData():
                                  index_col='Folder#')
 
             features = list(info.columns)
-            # These are the features to grab
-            # features = ['Hulled/Naked', 'Common name', 'Genome', 'Ploidy',
-            #             'Wild/Domesticated', 'Sample name', 'Sub type', 'Ear']
 
             # Lambda to look up the feature in excel spreadsheet
             def look_up(x, y): return info.loc[x['folderid']][y]
