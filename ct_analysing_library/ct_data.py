@@ -192,9 +192,10 @@ class CTData():
             info = pd.read_excel(excel_file,
                                  index_col='Folder#')
 
+            features = list(info.columns)
             # These are the features to grab
-            features = ['Hulled/Naked', 'Common name', 'Genome', 'Ploidy',
-                        'Wild/Domesticated', 'Sample name', 'Sub type', 'Ear']
+            # features = ['Hulled/Naked', 'Common name', 'Genome', 'Ploidy',
+            #             'Wild/Domesticated', 'Sample name', 'Sub type', 'Ear']
 
             # Lambda to look up the feature in excel spreadsheet
             def look_up(x, y): return info.loc[x['folderid']][y]
@@ -204,10 +205,12 @@ class CTData():
                 [look_up(x, y) for y in features])
 
             self.df[features] = self.df.apply(gather_data, axis=1)
-        except KeyError:
+        except KeyError as e:
             print('Error matching data')
+            print(e)
             raise NoDataFoundException
-        except AttributeError:
+        except AttributeError as e:
+            print(e)
             raise NoDataFoundException
 
     def aggregate_spike_averages(self, attributes, groupby):
