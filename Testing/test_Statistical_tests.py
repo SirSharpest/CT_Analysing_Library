@@ -9,3 +9,15 @@ def test_baysian_hypothesis_test(data_extra_info):
 
 def test_test_normality(data_extra_info):
     check_normality()
+
+
+def test_t_test(data_extra_info):
+    f
+
+
+def test_anova(data_extra_info):
+    f
+
+
+def test_manova(data_extra_info):
+    f
