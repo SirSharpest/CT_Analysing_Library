@@ -1,1 +1,1 @@
-pytest -s -v
+pytest -s -v  --html=report.html

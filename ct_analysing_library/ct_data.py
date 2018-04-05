@@ -225,9 +225,6 @@ class CTData():
         @param attributes list of features to average
         """
 
-        if self.additional_data is None:
-            print('\nWarning, this could go wrong if additional data is not added')
-
         trans_funcs = {'median': np.median,
                        'mean': np.mean, 'std': np.std, 'sum': np.sum}
 

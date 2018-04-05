@@ -78,7 +78,7 @@ def baysian_hypothesis_test(group1, group2, group1_name, group2_name):
                                               'difference of stds', 'effect size'])
 
 
-def test_normality(vals):
+def check_normality(vals):
     """
     https://stackoverflow.com/a/12839537
 
