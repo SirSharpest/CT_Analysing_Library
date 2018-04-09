@@ -1,4 +1,4 @@
-#+TITLE: Documentation
+#+TITLE: Documentation For CT_Analysis_Library
 #+AUTHOR: Nathan Hughes
 #+OPTIONS: toc:nil H:4 ^:nil
 #+LaTeX_CLASS: article
@@ -29,37 +29,76 @@
 #+LATEX: \tableofcontents
 #+LATEX: \clearpage
 
+* Installation instructions:
+To install globally run with sudo, else on a virtualenv just:
+#+BEGIN_SRC bash
+pip3 install .
+#+END_SRC
 
+** Requirements
+- Python3
+- pandas
+- numpy
+- matplotlib
+- seaborn
+- scipy
+- sklearn
+- statsmodels
+- pymc3
+- xlrd
+
+\clearpage
 * ct_data.py
+** NoDataFoundException
+A custom exception for when there is no data in any of the scanned folders
 ** CTData
+This is a custom object made for holding CT Data
+*** init
+
+	This is the initialise function for the CTData object,
+	this will only need called once.
+
+	- *param* folder the folder to look for data in
+	- *param* rachis a boolean to decide to load in rachis data or not
+
 *** get_data
 
-	Returns the dataframe used in this class
+	Grabs the dataframe inside the class
+	- *returns* a copy of the dataframe used in this class
 
 *** gather_data
 
 	this function gathers together all
 	the data of interest
-	@param folder is a starting folder
-	@returns tuple of (seed files, rachis files)
+	- *param* folder is a starting folder
+	- *returns* tuple of (seed files, rachis files)
+
+*** create_dimensions_ratio
+
+	This is an additional phenotype which is of someuse for
+	finding out the relationship between the dimension variales
 
 *** make_dataframe
 
-	this function returns a dataframe of
-	grain parameters and optionally of the rachis top and bottom
-	@param grain_files is the output from gather_data
-	@param rachis_files is an optional output from gather_data also
-	@returns a dataframe of the information pre-joining
+	this function *returns* a dataframe of
+	grain *param*eters and optionally of the rachis top and bottom
+	- *param* grain_files is the output from gather_data
+	- *param* rachis_files is an optional output from gather_data also
+	- *returns* a dataframe of the information pre-joining
 
 *** clean_data
 
-	Following parameters outlined in the
+	Following *param*eters outlined in the
 	CT software documentation I remove outliers
 	which are known to be errors
 
+	- *param* remove_small a boolean to remove small grains or not
+	- *param* remove_large a boolean to remove larger grains or not
+
 *** get_files
 
-	Returns a tuple of grain files and rachis files
+	Grabs a tuple of grain files and rachis
+	- *returns* a tuple of grain files and rachis files
 
 *** fix_colnames
 
@@ -76,7 +115,7 @@
 	It's main purpose is to join split spikes by rachis nodes identified in the
 	analysis process
 
-	@param grain_df is the grain dataframe to take on-board
+	- *param* grain_df is the grain dataframe to take on-board
 
 *** remove_percentile
 
@@ -84,10 +123,10 @@
 	it uses a column to decide which to measure against. By default this
 	will remove everything above the percentile value
 
-	@param df is the dataframe to manipulate
-	@param column is the attribute column to base the removal of
-	@param target_percent is the percentage to aim for
-	@param bool_below is a default param which if set
+	- *param* df is the dataframe to manipulate
+	- *param* column is the attribute column to base the removal of
+	- *param* target_percent is the percentage to aim for
+	- *param* bool_below is a default *param* which if set
 	to True will remove values below rather than above percentage
 
 *** get_spike_info
@@ -95,11 +134,15 @@
 	This function should do something akin to adding additional
 	information to the data frame
 
-	@note there is some confusion in the NPPC about whether to use
+	- note there is some confusion in the NPPC about whether to use
 	folder name or file name as the unique id when this is made into
 	end-user software, a toggle should be added to allow this
 
+	- *param* excel_file a file to attach and read data from
+	- *param* join_column if the column for joining data is different then it should be stated
 
+*** look_up
+*** gather_data
 *** aggregate_spike_averages
 
 	This will aggregate features (specified by attributes) into their medians
@@ -108,7 +151,8 @@
 
 	Makes direct changes to the dataframe (self.df)
 
-	@param attributes list of features to average
+	- *param* attributes list of features to average
+	- *param* groupby how the data should be aggregated
 
 *** find_troublesome_spikes
 
@@ -118,13 +162,19 @@
 	The default criteria for this is simply a count check
 	So it requires that aggregate_spike_averages has been run
 
-	@returns a dataframe with candidates for manual investigation
+	- *returns* a dataframe with candidates for manual investigation
 
-*** make_plot
-
-	Returns false if plot could not be created for invalid parameters
-
+\clearpage
 * data_transforms.py
+*** box_cox_data
+
+    The powers or Box_Cox transform
+
+    Appears to be something which could really help with the kind of skewed data which this
+    library seeks to assist with.
+
+    - *param* values_array a numpy array of numbers to be transformed
+
 *** standarise_data
 
     This is to conform with the likes of PCA, the following text is borrowed from:
@@ -140,50 +190,121 @@
     uses: \dfrac{x_i – mean(x)}{stdev(x)}
     assumes Normal Distribution
 
+    To try and fit a normal distribution I am applying log scales of log_2
+
+    - *param* df the data to be standarised
+    - *param* features the list of features to standardise
+    - *param* groupby how the columns should be grouped
+    - *returns* scaled values
+
 *** perform_pca
 
-This function will perform a PCA and return the principle components as a
-dataframe.
+    This function will perform a PCA and return the principle components as a
+    dataframe.
 
-@param n_components components to check form
-@param df dataframe of the data to analyse
-@param features features from the dataframe to use
-@param  groupby the column in the df to use
-@param  standardise=False asks whether to standardise the data prior to PCA
+    [[https://stackoverflow.com/questions/22984335/recovering-features-names-of-explained-variance-ratio-in-pca-with-sklearn][Read this for more information]]
 
+    - *param* n_components components to check form
+    - *param* df dataframe of the data to analyse
+    - *param* features features from the dataframe to use
+    - *param* groupby the column in the df to use
+    - *param* standardise=False asks whether to standardise the data prior to PCA
+    - *returns* a dataframe of the data, the pca object and the scaled data for reference
 
+*** pca_to_table
+
+    Creates a dataframe of the PCA weights for each
+    attribute
+
+    https://stackoverflow.com/questions/22984335/recovering-features-names-of-explained-variance-ratio-in-pca-with-sklearn
+    - *returns* a pca table
+
+\clearpage
 * graphing.py
-** Error
-Base class for other exceptions
 ** InvalidPlot
 Except to trigger when a graph is given wrong args
-*** percentile_grid
-*** qq_grid
+*** plot_difference_of_means
+
+    Plots a difference of means graph
+
+    - *param* trace a trace object
+    - *param* **kwargs keyword arguments for matplotlib
+    - *returns* a plot axes with the graph plotted
+
+*** plot_forest_plot
+
+    Plots a forest plot
+
+    - *param* trace a trace object
+    - *param* name1 the name of the first group
+    - *param* name2 the name of the second group
+    - *returns* a forestplot on a gridspec
+
 *** plot_boxplot
 
     This should just create a single boxplot and return the figure
     and an axis, useful for rapid generation of single plots
     Rather than the madness of the plural function
 
+    Accepts Kwargs for matplotlib and seaborn
+
+    - *param* data a CTData object or else a dataframe
+    - *param* attribute the attribute to use in the boxplot
+    - *param* **kwargs keyword arguments for matplotlib
+    - *returns* a figure and axes
+
 *** plot_qqplot
 
     What's a QQ plot?
     https://stats.stackexchange.com/questions/139708/qq-plot-in-python
 
-*** plot_boxplots
+    - *param* vals the values to use in the qqplot
+    - *param* plot the plot to place this on
+
 *** plot_histogram
 
-    Simple histogram function
+    Simple histogram function which accepts
+    seaborn and matplotlib kwargs
+    *returns* a plot axes
 
-    returns a plot axes
+    - *param* data a CTData object or else a dataframe
+    - *param* attribute the attribute to use in the histogram
+    - *param* **kwargs keyword arguments for matplotlib
+    - *returns* an axes
+
+*** plot_pca
+
+    Plots the PCA of the data given in a 2D plot
+
+    - *param* pca the pca object
+    - *param* dataframe the dataframe from the pca output
+    - *param* groupby the variable to group by in the plot
+    - *param* single_plot a boolean to decide to multiplot or not
+    - return a seaborn plot object
 
 *** check_var_args
 
     Helper function to fix bad arguments
     before they get used in evaluations
 
+    - *param* arg arguments to check if fine or not
+
+\clearpage
 * statistical_tests.py
-*** test_normality
+*** baysian_hypothesis_test
+
+    Implements and uses the hypothesis test outlined as a robust replacement
+    for the t-test
+
+    for reference http://www.indiana.edu/~kruschke/BEST/BEST.pdf
+
+    - *param* group1 a numpy array to test
+    - *param* group2 a numpy array to test
+    - *param* group1_name the name of the first group
+    - *param* group2_name the name of the second group
+    - *returns* a summary dataframe
+
+*** check_normality
 
     https://stackoverflow.com/a/12839537
 
@@ -193,5 +314,16 @@ Except to trigger when a graph is given wrong args
     If the p-val is very small, it means it is
     unlikely that the data came from a normal distribution
 
-    As for chi-square:
-    https://biology.stackexchange.com/questions/13486/deciding-between-chi-square-and-t-test
+    As for chi-square: [[https://biology.stackexchange.com/questions/13486/deciding-between-chi-square-and-t-test][chi or ttest?]]
+
+    - *param* vals the values to test for normality
+    - *returns* a boolean to indicate if normal or not
+
+*** perform_t_test
+
+    Performs the standard t-test and *returns* a p-value
+
+    - *param* group1 the first group to compare
+    - *param* group2 the second group to compare
+
+    - *returns* a p-value of the ttest
