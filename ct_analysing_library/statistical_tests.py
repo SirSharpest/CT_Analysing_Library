@@ -8,6 +8,7 @@ Created on Mon Feb  5 12:09:35 2018
 """
 
 from scipy.stats import shapiro as normaltest
+from scipy.stats import ttest_ind
 import numpy as np
 import pymc3 as pm
 import pandas as pd
@@ -105,3 +106,11 @@ def check_normality(vals):
         print(
             'P-valueof: {0}\nThat is not statistically significant\nData is normally distributed'.format(p))
         return True
+
+
+def perform_t_test(group1, group2):
+    """
+    Performs the standard t-test and returns a p-value
+    """
+    t, p = ttest_ind(group1, group2)
+    return p

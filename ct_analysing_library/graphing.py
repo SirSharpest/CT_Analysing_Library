@@ -29,10 +29,10 @@ class InvalidPlot(Error):
     pass
 
 
-def plot_difference_of_means(trace):
+def plot_difference_of_means(trace, **kwargs):
     ps1 = pm.plot_posterior(trace, varnames=['difference of means'],
                             ref_val=0,
-                            color='#87ceeb')
+                            color='#87ceeb', **kwargs)
     return ps1
 
 
