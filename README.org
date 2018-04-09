@@ -1,15 +1,15 @@
 #+TITLE: Documentation
-#+AUTHOR: Nathan Hughes 
+#+AUTHOR: Nathan Hughes
 #+OPTIONS: toc:nil H:4 ^:nil
 #+LaTeX_CLASS: article
 #+LaTeX_CLASS_OPTIONS: [a4paper]
 #+LaTeX_HEADER: \usepackage[margin=0.8in]{geometry}
 #+LaTeX_HEADER: \usepackage{amssymb,amsmath}
-#+LaTeX_HEADER: \usepackage{fancyhdr} 
-#+LaTeX_HEADER: \pagestyle{fancy} 
-#+LaTeX_HEADER: \usepackage{lastpage} 
-#+LaTeX_HEADER: \usepackage{float} 
-#+LaTeX_HEADER: \restylefloat{figure} 
+#+LaTeX_HEADER: \usepackage{fancyhdr}
+#+LaTeX_HEADER: \pagestyle{fancy}
+#+LaTeX_HEADER: \usepackage{lastpage}
+#+LaTeX_HEADER: \usepackage{float}
+#+LaTeX_HEADER: \restylefloat{figure}
 #+LaTeX_HEADER: \usepackage{hyperref}
 #+LaTeX_HEADER: \hypersetup{urlcolor=blue}
 #+LaTex_HEADER: \usepackage{titlesec}
@@ -34,96 +34,96 @@
 ** CTData
 *** get_data
 
-        Returns the dataframe used in this class
-        
+	Returns the dataframe used in this class
+
 *** gather_data
 
-        this function gathers together all
-        the data of interest
-        @param folder is a starting folder
-        @returns tuple of (seed files, rachis files)
-        
+	this function gathers together all
+	the data of interest
+	@param folder is a starting folder
+	@returns tuple of (seed files, rachis files)
+
 *** make_dataframe
 
-        this function returns a dataframe of
-        grain parameters and optionally of the rachis top and bottom
-        @param grain_files is the output from gather_data
-        @param rachis_files is an optional output from gather_data also
-        @returns a dataframe of the information pre-joining
-        
+	this function returns a dataframe of
+	grain parameters and optionally of the rachis top and bottom
+	@param grain_files is the output from gather_data
+	@param rachis_files is an optional output from gather_data also
+	@returns a dataframe of the information pre-joining
+
 *** clean_data
 
-        Following parameters outlined in the
-        CT software documentation I remove outliers
-        which are known to be errors
-        
+	Following parameters outlined in the
+	CT software documentation I remove outliers
+	which are known to be errors
+
 *** get_files
 
-        Returns a tuple of grain files and rachis files
-        
+	Returns a tuple of grain files and rachis files
+
 *** fix_colnames
 
-        Because Biologists like to give data which are not normalised to any degree
-        this function exists to attempt to correct the grouping columns,
-        after standardisation https://github.com/SirSharpest/CT_Analysing_Library/issues/2
-        this shouldn't be needed anymore, but kept for legacy issues that could arise!
-        
+	Because Biologists like to give data which are not normalised to any degree
+	this function exists to attempt to correct the grouping columns,
+	after standardisation https://github.com/SirSharpest/CT_Analysing_Library/issues/2
+	this shouldn't be needed anymore, but kept for legacy issues that could arise!
+
 *** join_spikes_by_rachis
 
-        So important part of this function is that we accept that the data is what it is
-        that is to say: rtop, rbot and Z are all orientated in the proper direction
+	So important part of this function is that we accept that the data is what it is
+	that is to say: rtop, rbot and Z are all orientated in the proper direction
 
-        It's main purpose is to join split spikes by rachis nodes identified in the
-        analysis process
+	It's main purpose is to join split spikes by rachis nodes identified in the
+	analysis process
 
-        @param grain_df is the grain dataframe to take on-board
-        
+	@param grain_df is the grain dataframe to take on-board
+
 *** remove_percentile
 
-        This function is targeted at removing a percentile of a dataframe
-        it uses a column to decide which to measure against. By default this
-        will remove everything above the percentile value
+	This function is targeted at removing a percentile of a dataframe
+	it uses a column to decide which to measure against. By default this
+	will remove everything above the percentile value
 
-        @param df is the dataframe to manipulate
-        @param column is the attribute column to base the removal of
-        @param target_percent is the percentage to aim for
-        @param bool_below is a default param which if set
-        to True will remove values below rather than above percentage
-        
+	@param df is the dataframe to manipulate
+	@param column is the attribute column to base the removal of
+	@param target_percent is the percentage to aim for
+	@param bool_below is a default param which if set
+	to True will remove values below rather than above percentage
+
 *** get_spike_info
 
-        This function should do something akin to adding additional
-        information to the data frame
+	This function should do something akin to adding additional
+	information to the data frame
 
-        @note there is some confusion in the NPPC about whether to use
-        folder name or file name as the unique id when this is made into
-        end-user software, a toggle should be added to allow this
-        
+	@note there is some confusion in the NPPC about whether to use
+	folder name or file name as the unique id when this is made into
+	end-user software, a toggle should be added to allow this
+
 
 *** aggregate_spike_averages
 
-        This will aggregate features (specified by attributes) into their medians
-        on a per-spike basis.
+	This will aggregate features (specified by attributes) into their medians
+	on a per-spike basis.
 
 
-        Makes direct changes to the dataframe (self.df)
+	Makes direct changes to the dataframe (self.df)
 
-        @param attributes list of features to average
-        
+	@param attributes list of features to average
+
 *** find_troublesome_spikes
 
-        This will attempt to identify spikes
-        which are not performing as expected
+	This will attempt to identify spikes
+	which are not performing as expected
 
-        The default criteria for this is simply a count check
-        So it requires that aggregate_spike_averages has been run
+	The default criteria for this is simply a count check
+	So it requires that aggregate_spike_averages has been run
 
-        @returns a dataframe with candidates for manual investigation
-        
+	@returns a dataframe with candidates for manual investigation
+
 *** make_plot
 
-        Returns false if plot could not be created for invalid parameters
-        
+	Returns false if plot could not be created for invalid parameters
+
 * data_transforms.py
 *** standarise_data
 
@@ -131,15 +131,15 @@
     https://towardsdatascience.com/pca-using-python-scikit-learn-e653f8989e60
     Some code also also heavily borrowed from this page and I take minimal credit for it.
 
-    PCA is effected by scale so you need to scale the features in your data before applying PCA. 
+    PCA is effected by scale so you need to scale the features in your data before applying PCA.
     Use StandardScaler to help you standardize the dataset’s features onto unit scale (mean = 0 and variance = 1)
-    which is a requirement for the optimal performance of many machine learning algorithms. 
+    which is a requirement for the optimal performance of many machine learning algorithms.
     If you want to see the negative effect not scaling your data can have, scikit-learn has a section
     on the effects of not standardizing your data.
 
     uses: \dfrac{x_i – mean(x)}{stdev(x)}
     assumes Normal Distribution
-    
+
 *** perform_pca
 
 This function will perform a PCA and return the principle components as a
@@ -164,24 +164,24 @@ Except to trigger when a graph is given wrong args
     This should just create a single boxplot and return the figure
     and an axis, useful for rapid generation of single plots
     Rather than the madness of the plural function
-    
-*** qqplot
 
-    What's a QQ plot? 
+*** plot_qqplot
+
+    What's a QQ plot?
     https://stats.stackexchange.com/questions/139708/qq-plot-in-python
-    
+
 *** plot_boxplots
 *** plot_histogram
 
     Simple histogram function
 
-    returns a plot axes 
-    
+    returns a plot axes
+
 *** check_var_args
 
     Helper function to fix bad arguments
     before they get used in evaluations
-    
+
 * statistical_tests.py
 *** test_normality
 
@@ -195,4 +195,3 @@ Except to trigger when a graph is given wrong args
 
     As for chi-square:
     https://biology.stackexchange.com/questions/13486/deciding-between-chi-square-and-t-test
-    

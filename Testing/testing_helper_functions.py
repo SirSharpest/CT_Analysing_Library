@@ -20,4 +20,6 @@ def data():
 def data_extra_info():
     ctd = CTData(DATA_FOLDER, False)
     ctd.get_spike_info(EXTRA_INFO)
+    ctd.clean_data()
+    ctd.fix_colnames()
     return ctd

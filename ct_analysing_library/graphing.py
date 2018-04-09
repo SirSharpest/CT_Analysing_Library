@@ -59,7 +59,7 @@ def plot_boxplot(data, attribute, **kwargs):
     return (fig, ax)
 
 
-def qqplot(vals, plot=None):
+def plot_qqplot(vals, plot=None):
     """
     What's a QQ plot?
     https://stats.stackexchange.com/questions/139708/qq-plot-in-python
