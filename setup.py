@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='CT_Analysing_Library',
-      version='0.1',
+      version='0.2',
       description='Library used for CT grain analysis at the NPPC',
       url='https://github.com/SirSharpest/CT_Analysing_Library',
       author='Nathan Hughes',
