@@ -50,7 +50,6 @@ def plot_boxplot(data, attribute, **kwargs):
     Accepts Kwargs for matplotlib and seaborn
     """
     fig, ax = plt.subplots(1)
-    print(attribute)
     if type(data) is not DataFrame:
         sns.boxplot(data=data.get_data(), x=attribute, **kwargs)
     else:
@@ -71,7 +70,6 @@ def plot_qqplot(vals, plot=None):
     else:
         stats.probplot(z, dist="norm", plot=plt)
         plt.title("Normal Q-Q plot")
-        plt.show()
 
 
 def plot_histogram(data, attribute, **kwargs):
@@ -80,8 +78,12 @@ def plot_histogram(data, attribute, **kwargs):
     seaborn and matplotlib kwargs
     returns a plot axes
     """
-    ax = plt.subplot(111)
-    sns.distplot(data.get_data()[attribute], ax=ax, **kwargs)
+    if type(data) is not DataFrame:
+        ax = plt.subplot(111)
+        sns.distplot(data.get_data()[attribute], ax=ax, **kwargs)
+    else:
+        ax = plt.subplot(111)
+        sns.distplot(data[attribute], ax=ax, **kwargs)
     return ax
 
 
