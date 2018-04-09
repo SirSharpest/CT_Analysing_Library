@@ -18,8 +18,14 @@ class NoDataFoundException(Exception):
 
 
 class CTData():
-
     def __init__(self, folder, rachis):
+        """
+        This is the initialise function for the CTData object,
+        this will only need called once.
+
+        @param folder the folder to look for data in
+        @param rachis a boolean to decide to load in rachis data or not
+        """
         try:
             self.make_dataframe(folder, get_rachis=rachis)
             self.clean_data()
@@ -31,7 +37,8 @@ class CTData():
 
     def get_data(self):
         """
-        Returns a copy of the dataframe used in this class
+        Grabs the dataframe inside the class
+        @returns a copy of the dataframe used in this class
         """
         return self.df.copy(deep=True)
 
@@ -59,6 +66,10 @@ class CTData():
         return (candidate_files, rachis)
 
     def create_dimensions_ratio(self):
+        """
+        This is an additional phenotype which is of someuse for
+        finding out the relationship between the dimension variales
+        """
         self.df['length_depth_width'] = self.df.apply(
             lambda x: x['length'] * x['depth'] * x['width'], axis=1)
 
@@ -117,6 +128,9 @@ class CTData():
         Following parameters outlined in the
         CT software documentation I remove outliers
         which are known to be errors
+
+        @param remove_small a boolean to remove small grains or not
+        @param remove_large a boolean to remove larger grains or not
         """
         self.df = self.df.dropna(axis=1, how='all')
         self.df = self.df[self.df['surface_area'] < 100]
@@ -132,7 +146,8 @@ class CTData():
 
     def get_files(self):
         """
-        Returns a tuple of grain files and rachis files
+        Grabs a tuple of grain files and rachis
+        @returns a tuple of grain files and rachis files
         """
         return self.grain_files, self.rachis_files
 
@@ -189,6 +204,9 @@ class CTData():
         @note there is some confusion in the NPPC about whether to use
         folder name or file name as the unique id when this is made into
         end-user software, a toggle should be added to allow this
+
+        @param excel_file a file to attach and read data from
+        @param join_column if the column for joining data is different then it should be stated
         """
 
         try:
@@ -223,6 +241,7 @@ class CTData():
         Makes direct changes to the dataframe (self.df)
 
         @param attributes list of features to average
+        @param groupby how the data should be aggregated
         """
 
         trans_funcs = {'median': np.median,

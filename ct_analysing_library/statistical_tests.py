@@ -22,6 +22,10 @@ def baysian_hypothesis_test(group1, group2, group1_name, group2_name):
 
     for reference http://www.indiana.edu/~kruschke/BEST/BEST.pdf
 
+    @param group1 a numpy array to test
+    @param group2 a numpy array to test
+    @param group1_name the name of the first group
+    @param group2_name the name of the second group
     @returns a summary dataframe
     """
     if not isinstance(group1, np.ndarray) or not isinstance(group2, np.ndarray):
@@ -91,6 +95,9 @@ def check_normality(vals):
 
     As for chi-square:
     https://biology.stackexchange.com/questions/13486/deciding-between-chi-square-and-t-test
+
+    @param vals the values to test for normality
+    @returns a boolean to indicate if normal or not
     """
     w, p = normaltest(vals)
 
@@ -111,6 +118,11 @@ def check_normality(vals):
 def perform_t_test(group1, group2):
     """
     Performs the standard t-test and returns a p-value
+
+    @param group1 the first group to compare
+    @param group2 the second group to compare
+
+    @returns a p-value of the ttest
     """
     t, p = ttest_ind(group1, group2)
     return p

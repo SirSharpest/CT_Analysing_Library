@@ -1,5 +1,5 @@
 import pytest
-from testing_helper_functions import DATA_FOLDER, EXTRA_INFO, data, data_extra_info
+from testing_helper_functions import DATA_FOLDER, EXTRA_INFO, data, data_extra_info, atts
 from ct_analysing_library.graphing import InvalidPlot, plot_difference_of_means,  plot_boxplot, plot_qqplot, plot_histogram, plot_pca
 
 
@@ -52,9 +52,7 @@ def test_plot_histogram_as_dataframe(data_extra_info):
 
 def test_plot_pca(split_on_two_sample_types):
     from ct_analysing_library.data_transforms import perform_pca
-    atts = ['length', 'width', 'depth', 'volume',
-            'surface_area', 'length_depth_width']
-    df, pca = perform_pca(split_on_two_sample_types, atts,
-                          'Sample Type', standardise=True)
+    df, pca, d = perform_pca(split_on_two_sample_types, atts,
+                             'Sample Type', standardise=True)
 
     g = plot_pca(pca, df, 'Sample Type')

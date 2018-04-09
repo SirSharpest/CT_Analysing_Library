@@ -30,6 +30,13 @@ class InvalidPlot(Error):
 
 
 def plot_difference_of_means(trace, **kwargs):
+    """
+    Plots a difference of means graph
+
+    @param trace a trace object
+    @param **kwargs keyword arguments for matplotlib
+    @returns a plot axes with the graph plotted
+    """
     ps1 = pm.plot_posterior(trace, varnames=['difference of means'],
                             ref_val=0,
                             color='#87ceeb', **kwargs)
@@ -37,6 +44,14 @@ def plot_difference_of_means(trace, **kwargs):
 
 
 def plot_forest_plot(trace, name1, name2):
+    """
+    Plots a forest plot
+
+    @param trace a trace object
+    @param name1 the name of the first group
+    @param name2 the name of the second group
+    @returns a forestplot on a gridspec
+    """
     fp1 = pm.forestplot(trace, varnames=[name1, name2], rhat=False)
     return fp1
 
@@ -48,6 +63,11 @@ def plot_boxplot(data, attribute, **kwargs):
     Rather than the madness of the plural function
 
     Accepts Kwargs for matplotlib and seaborn
+
+    @param data a CTData object or else a dataframe
+    @param attribute the attribute to use in the boxplot
+    @param **kwargs keyword arguments for matplotlib
+    @returns a figure and axes
     """
     fig, ax = plt.subplots(1)
     if type(data) is not DataFrame:
@@ -62,6 +82,9 @@ def plot_qqplot(vals, plot=None):
     """
     What's a QQ plot?
     https://stats.stackexchange.com/questions/139708/qq-plot-in-python
+
+    @param vals the values to use in the qqplot
+    @param plot the plot to place this on
     """
     z = (vals - np.mean(vals)) / np.std(vals)
     if plot:
@@ -77,6 +100,11 @@ def plot_histogram(data, attribute, **kwargs):
     Simple histogram function which accepts
     seaborn and matplotlib kwargs
     returns a plot axes
+
+    @param data a CTData object or else a dataframe
+    @param attribute the attribute to use in the histogram
+    @param **kwargs keyword arguments for matplotlib
+    @returns an axes
     """
     if type(data) is not DataFrame:
         ax = plt.subplot(111)
@@ -90,6 +118,12 @@ def plot_histogram(data, attribute, **kwargs):
 def plot_pca(pca, dataframe, groupby, single_plot=False):
     """
     Plots the PCA of the data given in a 2D plot
+
+    @param pca the pca object
+    @param dataframe the dataframe from the pca output
+    @param groupby the variable to group by in the plot
+    @param single_plot a boolean to decide to multiplot or not
+    @return a seaborn plot object
     """
     if not single_plot:
         g = sns.lmplot(data=dataframe, x='principal component 1',
@@ -111,6 +145,8 @@ def check_var_args(arg):
     """
     Helper function to fix bad arguments
     before they get used in evaluations
+
+    @param arg arguments to check if fine or not
     """
     if arg.rsplit('=', 1)[1] == '' or arg.rsplit('=', 1)[1] == '\'\'':
         return ''

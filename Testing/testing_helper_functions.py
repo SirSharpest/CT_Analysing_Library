@@ -23,3 +23,7 @@ def data_extra_info():
     ctd.clean_data()
     ctd.fix_colnames()
     return ctd
+
+
+atts = ['length', 'width', 'depth', 'volume',
+        'surface_area', 'length_depth_width']

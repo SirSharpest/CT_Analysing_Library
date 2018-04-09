@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 from scipy.stats import boxcox
 import pandas as pd
 import numpy as np
-from numpy import log10
+import pylab as pl
 
 
 def box_cox_data(values_array):
@@ -20,6 +20,8 @@ def box_cox_data(values_array):
 
     Appears to be something which could really help with the kind of skewed data which this
     library seeks to assist with.
+
+    @param values_array a numpy array of numbers to be transformed
     """
     for c in values_array.T:
         c = boxcox(c)
@@ -41,6 +43,11 @@ def standarise_data(df, features, groupby):
     assumes Normal Distribution
 
     To try and fit a normal distribution I am applying log scales of log_2
+
+    @param df the data to be standarised
+    @param features the list of features to standardise
+    @param groupby how the columns should be grouped
+    @returns scaled values
     """
     # Separating out the features
     x = df.loc[:, features].values
@@ -65,7 +72,7 @@ def perform_pca(df, features, groupby, groupby2=None, groupby3=None, standardise
     @param features features from the dataframe to use
     @param groupby the column in the df to use
     @param standardise=False asks whether to standardise the data prior to PCA
-
+    @returns a dataframe of the data, the pca object and the scaled data for reference
     """
     pca = PCA(n_components=2)
     data = standarise_data(
@@ -79,20 +86,19 @@ def perform_pca(df, features, groupby, groupby2=None, groupby3=None, standardise
     # pca_table = pca_to_table(pca, data)
 
     if groupby2 is None:
-        return (pd.concat([principalDf, df[[groupby]]], axis=1), pca)
+        return (pd.concat([principalDf, df[[groupby]]], axis=1), pca, data)
     if groupby3 is None:
-        return (pd.concat([principalDf, df[[groupby]], df[[groupby2]]], axis=1), pca)
+        return (pd.concat([principalDf, df[[groupby]], df[[groupby2]]], axis=1), pca, data)
     else:
-        return (pd.concat([principalDf, df[[groupby]], df[[groupby2]], df[[groupby3]]], axis=1), pca)
+        return (pd.concat([principalDf, df[[groupby]], df[[groupby2]], df[[groupby3]]], axis=1), pca, data)
 
 
-def pca_to_table(pca, pca_df):
+def pca_to_table(pca):
     """
     Creates a dataframe of the PCA weights for each
     attribute
 
     https://stackoverflow.com/questions/22984335/recovering-features-names-of-explained-variance-ratio-in-pca-with-sklearn
+    @returns a pca table
     """
-    i = np.identity(pca_df.shape[1])
-    coeff = pca.transform(i)
-    return pd.DataFrame(coeff, columns=['PC-1', 'PC-2'], index=pca_df.columns)
+    return pca
