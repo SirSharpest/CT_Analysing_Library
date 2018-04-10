@@ -91,7 +91,7 @@ class CTData():
                 try:
                     rachis[f] = pd.read_csv(f)
                 except EmptyDataError:
-                    print('\n{0} is missing rachis data...'.format(f))
+                    pass
             # add plant name to files
             # and rachis if applicable
         for k, v in dfs.items():
@@ -107,13 +107,11 @@ class CTData():
                         k[:-4])]['rbot'][0]
                 # Flip the scans so that the Z makes sense
                 except (IndexError, KeyError):
-                    print(
-                        '\nNo data found for rachis:\n{0}\nUsing seed Z as proxy'.format(k))
+                    pass
                     try:
                         v['rbot'] = v['z'].max()
                         v['rtop'] = v['z'].min()
                     except KeyError:
-                        print('\nFile: {0} looks to be empty...'.format(k))
                         continue
         df = pd.concat(dfs.values())
         df['z'] = abs(df['z'] - df['z'].max())
@@ -208,15 +206,16 @@ class CTData():
         @param excel_file a file to attach and read data from
         @param join_column if the column for joining data is different then it should be stated
         """
-
         try:
             # Grab the linking excel file
             info = pd.read_excel(excel_file,
                                  index_col='Folder#')
 
-            features = list(info.columns)
+            info = info.replace(np.nan, 'None', regex=True)
 
+            features = list(info.columns)
             # Lambda to look up the feature in excel spreadsheet
+
             def look_up(x, y): return info.loc[x['folderid']][y]
 
             # Lambda form a series (data row) and apply it to dataframe
@@ -225,7 +224,6 @@ class CTData():
 
             self.df[features] = self.df.apply(gather_data, axis=1)
         except KeyError as e:
-            print('Error matching data')
             print(e)
             raise NoDataFoundException
         except AttributeError as e:

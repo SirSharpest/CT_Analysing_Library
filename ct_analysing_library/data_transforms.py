@@ -82,9 +82,6 @@ def perform_pca(df, features, groupby, groupby2=None, groupby3=None, standardise
     principalDf = pd.DataFrame(data=principalComponents, columns=[
                                'principal component 1', 'principal component 2'])
 
-    # Broken TODO: Fix
-    # pca_table = pca_to_table(pca, data)
-
     if groupby2 is None:
         return (pd.concat([principalDf, df[[groupby]]], axis=1), pca, data)
     if groupby3 is None:
