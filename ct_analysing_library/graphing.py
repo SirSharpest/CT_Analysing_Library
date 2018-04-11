@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-reated on Mon Feb  5 21:48:07 2018
+created on Mon Feb  5 21:48:07 2018
 
 @author: nathan
 
