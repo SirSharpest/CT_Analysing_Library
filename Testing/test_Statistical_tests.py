@@ -25,3 +25,13 @@ def test_t_test(data_extra_info):
     g1 = np.array(df[df['Sample Type'] == t1]['volume'])
     g2 = np.array(df[df['Sample Type'] == t2]['volume'])
     perform_t_test(g1, g2)
+
+
+def test_t_test_welch(data_extra_info):
+    import numpy as np
+    df = data_extra_info.get_data()
+    t1 = df['Sample Type'].unique()[0]
+    t2 = df['Sample Type'].unique()[1]
+    g1 = np.array(df[df['Sample Type'] == t1]['volume'])
+    g2 = np.array(df[df['Sample Type'] == t2]['volume'])
+    perform_t_test(g1, g2, equal_var=False)

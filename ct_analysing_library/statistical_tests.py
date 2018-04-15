@@ -115,7 +115,7 @@ def check_normality(vals):
         return True
 
 
-def perform_t_test(group1, group2):
+def perform_t_test(group1, group2, equal_var=True):
     """
     Performs the standard t-test and returns a p-value
 
@@ -124,5 +124,5 @@ def perform_t_test(group1, group2):
 
     @returns a p-value of the ttest
     """
-    t, p = ttest_ind(group1, group2)
+    t, p = ttest_ind(group1, group2, equal_var=equal_var)
     return p
