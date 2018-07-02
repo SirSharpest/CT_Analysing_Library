@@ -98,6 +98,7 @@ class CTData():
             # Grab the plant name and the folder name
             v['scanid'] = basename(k).split('.', 1)[0]
             v['folderid'] = dirname(k).rsplit('/', 1)[-1]
+            v['grain_num'] = v.index
             if get_rachis:
                 try:
                     # reverse the rachis here so we don't have to later
@@ -113,7 +114,8 @@ class CTData():
                         v['rtop'] = v['z'].min()
                     except KeyError:
                         continue
-        df = pd.concat(dfs.values())
+
+        df = pd.concat(dfs.values(), sort=True)
         df['z'] = abs(df['z'] - df['z'].max())
         # Finally just turn the folder number into an int so that it's
         # easier to compare with the look-up table later
@@ -130,17 +132,30 @@ class CTData():
         @param remove_small a boolean to remove small grains or not
         @param remove_large a boolean to remove larger grains or not
         """
-        self.df = self.df.dropna(axis=1, how='all')
-        self.df = self.df[self.df['surface_area'] < 100]
-        self.df = self.df[self.df['volume'] > 3.50]  # this is given for brachy
-        self.df = self.df[self.df['volume'] < 60]
 
-        if remove_large:
-            self.df = self.df[self.df['volume'] <
-                              self.df['volume'].quantile(.95)]
-        if remove_small:
-            self.df = self.df[self.df['volume'] >
-                              self.df['volume'].quantile(.05)]
+        def do_clean(df):
+            df = df.dropna(axis=1, how='all')
+            df = df[df['surface_area'] < 100]
+            # this is given for brachy
+            df = df[df['volume'] > 3.50]
+            df = df[df['volume'] < 60]
+            if remove_large:
+                df = df[df['volume'] <
+                        df['volume'].quantile(.95)]
+                if remove_small:
+                    df = df[df['volume'] >
+                            df['volume'].quantile(.95)]
+            return df
+
+        if 'Sample Type' in self.df.columns:
+            tmp_dfs = []
+            for s in self.df['Sample Type'].unique():
+                tmp = self.df[self.df['Sample Type'] == s]
+                tmp = do_clean(tmp)
+                tmp_dfs.append(tmp)
+            self.df = pd.concat(tmp_dfs, sort=True)
+        else:
+            self.df = do_clean(self.df)
 
     def get_files(self):
         """
