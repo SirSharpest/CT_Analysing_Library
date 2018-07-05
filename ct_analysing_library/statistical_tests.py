@@ -77,7 +77,7 @@ def baysian_hypothesis_test(group1, group2, group1_name, group2_name):
                                        diff_of_means / np.sqrt((group1_std**2 + group2_std**2) / 2))
 
     with model:
-        trace = pm.sample(5000, cores=4)
+        trace = pm.sample(2000, cores=4)
 
     return trace, pm.summary(trace, varnames=['difference of means',
                                               'difference of stds', 'effect size'])

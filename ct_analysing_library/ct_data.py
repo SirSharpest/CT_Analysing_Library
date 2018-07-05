@@ -123,6 +123,27 @@ class CTData():
         self.df = df
         return df  # returns a dataframe for use outside of object too!
 
+    def do_clean(self, df, remove_large=False, remove_small=False):
+        df = df.dropna(axis=1, how='all')
+        if remove_large:
+            sizes = []
+            for v in ['width', 'length', 'depth', 'volume', 'surface_area']:
+                sizes.append(df[v].quantile(0.95))
+            for i, v in enumerate(['width', 'length', 'depth', 'volume', 'surface_area']):
+                df = df[df[v] < sizes[i]]
+        if remove_small:
+            sizes = []
+            for v in ['width', 'length', 'depth', 'volume', 'surface_area']:
+                sizes.append(df[v].quantile(0.05))
+            for i, v in enumerate(['width', 'length', 'depth', 'volume', 'surface_area']):
+                df = df[df[v] > sizes[i]]
+
+        df = df[df['surface_area'] < 100]
+        # this is given for brachy
+        df = df[df['volume'] > 3]
+        df = df[df['volume'] < 60]
+        return df
+
     def clean_data(self, remove_small=False, remove_large=False):
         """
         Following parameters outlined in the
@@ -133,29 +154,16 @@ class CTData():
         @param remove_large a boolean to remove larger grains or not
         """
 
-        def do_clean(df):
-            df = df.dropna(axis=1, how='all')
-            df = df[df['surface_area'] < 100]
-            # this is given for brachy
-            df = df[df['volume'] > 3.50]
-            df = df[df['volume'] < 60]
-            if remove_large:
-                df = df[df['volume'] <
-                        df['volume'].quantile(.95)]
-                if remove_small:
-                    df = df[df['volume'] >
-                            df['volume'].quantile(.95)]
-            return df
-
         if 'Sample Type' in self.df.columns:
             tmp_dfs = []
             for s in self.df['Sample Type'].unique():
                 tmp = self.df[self.df['Sample Type'] == s]
-                tmp = do_clean(tmp)
+                tmp = self.do_clean(
+                    tmp, remove_small=remove_small, remove_large=remove_large)
                 tmp_dfs.append(tmp)
             self.df = pd.concat(tmp_dfs, sort=True)
         else:
-            self.df = do_clean(self.df)
+            self.df = self.do_clean(self.df)
 
     def get_files(self):
         """
@@ -244,6 +252,18 @@ class CTData():
         except AttributeError as e:
             print(e)
             raise NoDataFoundException
+
+    def assign_spike_height(self):
+        try:
+            self.df['length'] = abs(self.df['rtop'] - self.df['rbot'])
+        except Exception as e:
+            raise NoDataFoundException
+
+    def assign_grain_location(self):
+        if 'Sample name' not in self.df.columns:
+            raise NoDataFoundException
+
+        # first step, flip all the grain locs
 
     def aggregate_spike_averages(self, attributes, groupby):
         """
