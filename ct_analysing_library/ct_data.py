@@ -280,6 +280,9 @@ class CTData():
                 [look_up(x, y) for y in features])
 
             self.df[features] = self.df.apply(gather_data, axis=1)
+
+            self.join_spikes_by_rachis()
+
         except KeyError as e:
             print(e)
             raise NoDataFoundException
