@@ -99,6 +99,11 @@ class CTData():
             v['scanid'] = basename(k).split('.', 1)[0]
             v['folderid'] = dirname(k).rsplit('/', 1)[-1]
             v['grain_num'] = v.index
+
+            try:
+                v['z'] = abs(v['z'] - v['z'].max())
+            except (IndexError, KeyError):
+                pass
             if get_rachis:
                 try:
                     # reverse the rachis here so we don't have to later
@@ -108,15 +113,13 @@ class CTData():
                         k[:-4])]['rbot'][0]
                 # Flip the scans so that the Z makes sense
                 except (IndexError, KeyError):
-                    pass
                     try:
-                        v['rbot'] = v['z'].max()
-                        v['rtop'] = v['z'].min()
+                        v['rbot'] = v['z'].min()
+                        v['rtop'] = v['z'].max()
                     except KeyError:
                         continue
 
         df = pd.concat(dfs.values(), sort=True)
-        df['z'] = abs(df['z'] - df['z'].max())
         # Finally just turn the folder number into an int so that it's
         # easier to compare with the look-up table later
         df['folderid'] = df['folderid'].astype(int)
@@ -194,13 +197,44 @@ class CTData():
         """
         # So we are only really interested in grains which are not labelled with
         # 'all' in partition, so let's id them to start with
-        for sn in self.df[self.df['Ear'] != 'all']['Sample name'].unique():
 
-            bot = self.df.loc[(self.df['Sample name'] == sn)
-                              & (self.df['Ear'] == 'bot')]['rbot']
+        def get_bot(x, sn): return x.loc[(x['Sample name'] == sn) & (
+            x['Ear'] == 'bot')]['rtop']
 
+        def get_mid(x, sn): return x.loc[(x['Sample name'] == sn) & (
+            x['Ear'] == 'middle')]
+
+        def fix_top_bot(sn):
+            bot = get_bot(self.df)
             self.df.loc[(self.df['Sample name'] == sn) & (self.df['Ear'] == 'top'), 'z'] = self.df.loc[(
                 self.df['Sample name'] == sn) & (self.df['Ear'] == 'top'), 'z'] + bot
+
+        if len(self.df['Ear'].unique()) <= 2:
+            for sn in self.df[self.df['Ear'] != 'all']['Sample name'].unique():
+                fix_top_bot(sn)
+        else:
+            for sn in self.df[self.df['Ear'] != 'all']['Sample name'].unique():
+                try:
+                    bot = get_bot(self.df, sn)
+                    mid_bot = get_mid(self.df, sn)['rbot']
+                    mid_top = get_mid(self.df, sn)['rtop']
+
+                    self.df.loc[(self.df['Sample name'] == sn) & (self.df['Ear'] == 'middle'), 'z'] = self.df.loc[(
+                        self.df['Sample name'] == sn) & (self.df['Ear'] == 'middle'), 'z'] + bot
+
+                    self.df.loc[(self.df['Sample name'] == sn) & (self.df['Ear'] == 'top'), 'z'] = self.df.loc[(
+                        self.df['Sample name'] == sn) & (self.df['Ear'] == 'middle'), 'z'] + bot
+
+                except Exception as e:
+                    fix_top_bot(sn)
+
+                self.df.loc[(self.df['Sample name'] == sn) & (self.df['Ear'] == 'middle'), 'z'] = self.df.loc[(
+                    self.df['Sample name'] == sn) & (self.df['Ear'] == 'top'), 'z'] + bot
+
+        def find_max(row):
+            return self.df[self.df['Sample name'] == row['Sample name']]['z'].max()
+
+        self.df['height'] = self.df.apply(find_max, axis=1)
 
     def remove_percentile(self, df, column, target_percent, bool_below=False):
         """
@@ -252,18 +286,6 @@ class CTData():
         except AttributeError as e:
             print(e)
             raise NoDataFoundException
-
-    def assign_spike_height(self):
-        try:
-            self.df['length'] = abs(self.df['rtop'] - self.df['rbot'])
-        except Exception as e:
-            raise NoDataFoundException
-
-    def assign_grain_location(self):
-        if 'Sample name' not in self.df.columns:
-            raise NoDataFoundException
-
-        # first step, flip all the grain locs
 
     def aggregate_spike_averages(self, attributes, groupby):
         """

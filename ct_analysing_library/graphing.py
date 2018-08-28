@@ -115,7 +115,7 @@ def plot_histogram(data, attribute, **kwargs):
     return ax
 
 
-def plot_pca(pca, dataframe, groupby, single_plot=False):
+def plot_pca(pca, dataframe, groupby, single_plot=False, legend=False):
     """
     Plots the PCA of the data given in a 2D plot
 
@@ -127,10 +127,10 @@ def plot_pca(pca, dataframe, groupby, single_plot=False):
     """
     if not single_plot:
         g = sns.lmplot(data=dataframe, x='principal component 1',
-                       y='principal component 2', hue=groupby, fit_reg=False, col=groupby, scatter_kws={'alpha': 0.6}, size=7, aspect=1.5)
+                       y='principal component 2', hue=groupby, fit_reg=False, col=groupby, scatter_kws={'alpha': 0.6}, size=7, aspect=1.5, legend=False)
     else:
         g = sns.lmplot(data=dataframe, x='principal component 1',
-                       y='principal component 2', hue=groupby, fit_reg=False, scatter_kws={'alpha': 0.6}, size=7, aspect=1.5)
+                       y='principal component 2', hue=groupby, fit_reg=False, scatter_kws={'alpha': 0.6}, size=7, aspect=1.5, legend=legend)
 
     g.set_xlabels(
         'Principal Component 1 - %{0:.2f}'.format(pca.explained_variance_ratio_[0] * 100), fontsize=15)

@@ -15,7 +15,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def baysian_hypothesis_test(group1, group2, group1_name, group2_name):
+def baysian_hypothesis_test(group1, group2, group1_name, group2_name, n_samples=1000):
     """
     Implements and uses the hypothesis test outlined as a robust replacement
     for the t-test
@@ -31,8 +31,8 @@ def baysian_hypothesis_test(group1, group2, group1_name, group2_name):
     if not isinstance(group1, np.ndarray) or not isinstance(group2, np.ndarray):
         raise TypeError
 
-    group1 = np.log10(group1)
-    group2 = np.log10(group2)
+    # group1 = np.log10(group1)
+    # group2 = np.log10(group2)
 
     y = pd.DataFrame(dict(value=np.r_[group1, group2], group=np.r_[
                      [group1_name]*len(group1), [group2_name]*len(group2)]))
@@ -47,8 +47,8 @@ def baysian_hypothesis_test(group1, group2, group1_name, group2_name):
         group1_mean = pm.Normal('{0}_mean'.format(group1_name), mu_m, sd=mu_s)
         group2_mean = pm.Normal('{0}_mean'.format(group2_name), mu_m, sd=mu_s)
 
-    sig_low = 1
-    sig_high = 1000
+    sig_low = group1.min() if group1.min() < group2.min() else group2.min()
+    sig_high = group1.max() if group1.max() > group2.max() else group2.max()
 
     with model:
         group1_std = pm.Uniform('{0}_std'.format(
@@ -77,7 +77,7 @@ def baysian_hypothesis_test(group1, group2, group1_name, group2_name):
                                        diff_of_means / np.sqrt((group1_std**2 + group2_std**2) / 2))
 
     with model:
-        trace = pm.sample(2000, cores=4)
+        trace = pm.sample(n_samples, cores=2)
 
     return trace, pm.summary(trace, varnames=['difference of means',
                                               'difference of stds', 'effect size'])
