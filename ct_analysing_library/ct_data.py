@@ -102,6 +102,8 @@ class CTData():
 
             try:
                 v['z'] = abs(v['z'] - v['z'].max())
+                v['rbot'] = v['z'].min()
+                v['rtop'] = v['z'].max()
             except (IndexError, KeyError):
                 pass
             if get_rachis:
@@ -198,38 +200,35 @@ class CTData():
         # So we are only really interested in grains which are not labelled with
         # 'all' in partition, so let's id them to start with
 
-        def get_bot(x, sn): return x.loc[(x['Sample name'] == sn) & (
-            x['Ear'] == 'bot')]['rtop']
+        def get_bot(x, sn):
+            try:
+                return list(x.loc[(x['Sample name'] == sn) & (
+                    x['Ear'] == 'bottom')]['rtop'])[0]
+            except Exception as e:
+                return 0
 
         def get_mid(x, sn): return x.loc[(x['Sample name'] == sn) & (
             x['Ear'] == 'middle')]
 
         def fix_top_bot(sn):
-            bot = get_bot(self.df)
+            bot = get_bot(self.df, sn)
             self.df.loc[(self.df['Sample name'] == sn) & (self.df['Ear'] == 'top'), 'z'] = self.df.loc[(
                 self.df['Sample name'] == sn) & (self.df['Ear'] == 'top'), 'z'] + bot
 
-        if len(self.df['Ear'].unique()) <= 2:
-            for sn in self.df[self.df['Ear'] != 'all']['Sample name'].unique():
+        for sn in self.df[self.df['Ear'] == 'middle']['Sample name'].unique():
+
+            if len(self.df[self.df['Sample name'] == sn]['Ear'].unique()) <= 2:
                 fix_top_bot(sn)
-        else:
-            for sn in self.df[self.df['Ear'] != 'all']['Sample name'].unique():
-                try:
-                    bot = get_bot(self.df, sn)
-                    mid_bot = get_mid(self.df, sn)['rbot']
-                    mid_top = get_mid(self.df, sn)['rtop']
-
-                    self.df.loc[(self.df['Sample name'] == sn) & (self.df['Ear'] == 'middle'), 'z'] = self.df.loc[(
-                        self.df['Sample name'] == sn) & (self.df['Ear'] == 'middle'), 'z'] + bot
-
-                    self.df.loc[(self.df['Sample name'] == sn) & (self.df['Ear'] == 'top'), 'z'] = self.df.loc[(
-                        self.df['Sample name'] == sn) & (self.df['Ear'] == 'middle'), 'z'] + bot
-
-                except Exception as e:
-                    fix_top_bot(sn)
+            else:
+                bot = get_bot(self.df, sn)
+                mid_bot = list(get_mid(self.df, sn)['rbot'])[0]
+                mid_top = list(get_mid(self.df, sn)['rtop'])[0]
 
                 self.df.loc[(self.df['Sample name'] == sn) & (self.df['Ear'] == 'middle'), 'z'] = self.df.loc[(
-                    self.df['Sample name'] == sn) & (self.df['Ear'] == 'top'), 'z'] + bot
+                    self.df['Sample name'] == sn) & (self.df['Ear'] == 'middle'), 'z'] + bot
+
+                self.df.loc[(self.df['Sample name'] == sn) & (self.df['Ear'] == 'top'), 'z'] = self.df.loc[(
+                    self.df['Sample name'] == sn) & (self.df['Ear'] == 'top'), 'z'] + mid_top
 
         def find_max(row):
             return self.df[self.df['Sample name'] == row['Sample name']]['z'].max()
