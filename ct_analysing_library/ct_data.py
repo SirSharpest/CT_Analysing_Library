@@ -201,13 +201,13 @@ class CTData():
         # 'all' in partition, so let's id them to start with
 
         def get_z(x):
-            n = list(x['Sample name'])[0]
+            n = x['Sample name']
             b = self.df[(self.df['Sample name'] == n) &
                         (self.df['Ear'] == 'bottom')]['z'].max()
             return x['z'] + b
 
         def get_mid(x):
-            n = list(x['Sample name'])[0]
+            n = x['Sample name']
             b = self.df[(self.df['Sample name'] == n) &
                         (self.df['Ear'] == 'middle')]['z'].max()
             return x['z'] + b
