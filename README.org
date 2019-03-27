@@ -1,3 +1,5 @@
+[[https://zenodo.org/badge/121279288.svg]]
+
 #+TITLE: Documentation For CT_Analysis_Library
 #+AUTHOR: Nathan Hughes
 #+OPTIONS: toc:nil H:4 ^:nil
@@ -28,6 +30,8 @@
 #+LATEX: \clearpage
 #+LATEX: \tableofcontents
 #+LATEX: \clearpage
+
+
 
 * Installation instructions:
 To install globally run with sudo, else on a virtualenv just:
